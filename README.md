@@ -5,7 +5,7 @@ Aplicación web **solo de control** para un vehículo IoT: joystick circular tá
 HTML5 + CSS3 + Bootstrap 5.3 (local) + JavaScript ES6+ con módulos nativos. Sin build, sin dependencias en tiempo de ejecución.
 Se publica **solo el frontend** en GitHub Pages; el backend (FastAPI + RDS) vive en AWS.
 
-> Antes de publicar: abre `js/config.js` y escribe **tu nombre completo** en `STUDENT_NAME` (aparece en el pie).
+> Autor: **Carlos Omar Cruz Ramos**. El pie muestra «© 2026 Control IoT. Todos los derechos reservados. Desarrollado por Carlos Omar Cruz Ramos · 2026»; el nombre y el enlace se cambian en `js/config.js` (`STUDENT_NAME`, `STUDENT_URL`).
 
 ## Estructura
 
@@ -28,7 +28,7 @@ control-iot/
 │   ├── state/store.js         Estado observable mínimo
 │   ├── ui/                    joystick, controlPanel, statusPanel, demoPanel, toast
 │   └── utils/                 dom (anti-inyección), validators, errors, format, emitter
-├── assets/                    favicon.svg/.ico/32 px, apple-touch-icon, icon-192/512
+├── assets/                    favicon.ico, favicon-32.png, apple-touch-icon, icon-192/512
 ├── vendor/bootstrap/          Bootstrap 5.3.8 CSS (MIT)
 ├── docs/                      ARQUITECTURA, CONTRATO_API, PRUEBAS, SEGURIDAD, PUBLICACION, CHECKLIST
 └── .nojekyll
@@ -55,7 +55,7 @@ Si pruebas contra tu API real desde `localhost:8081`, agrega ese origen a `CORS_
 
 | Constante | Qué es |
 |---|---|
-| `STUDENT_NAME`, `YEAR` | Créditos del pie |
+| `APP_NAME`, `STUDENT_NAME`, `STUDENT_URL`, `YEAR` | Pie de página (el nombre enlaza a `STUDENT_URL`) |
 | `API_BASE_URL` | `https://drift-king.duckdns.org` (HTTPS) |
 | `WS_BASE_URL` | Derivada: `https`→`wss` |
 | `VEHICLE_ID` | `2` (grúa) |
