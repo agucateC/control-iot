@@ -2,10 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Control IoT</title>
   <meta name="description" content="Aplicación web de control de un vehículo IoT: joystick, botones, DEMO y conectividad en tiempo real.">
-  <meta name="theme-color" content="#0b2a6f">
+  <meta name="theme-color" content="#72130d">
   <!-- Rutas RELATIVAS (sin "/" inicial): funcionan en https://usuario.github.io/repositorio/ -->
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
@@ -25,8 +25,8 @@
     <symbol id="i-rot-l" viewBox="0 0 24 24"><path d="M12 5a7 7 0 1 1-6.6 9.3l1.9-.6A5 5 0 1 0 8 8.4L9.8 10H4V4.2l1.6 1.6A7 7 0 0 1 12 5z" fill="currentColor"/></symbol>
     <symbol id="i-rot-r" viewBox="0 0 24 24"><path d="M12 5a7 7 0 1 0 6.6 9.3l-1.9-.6A5 5 0 1 1 16 8.4L14.2 10H20V4.2l-1.6 1.6A7 7 0 0 0 12 5z" fill="currentColor"/></symbol>
     <symbol id="i-360" viewBox="0 0 24 24"><path d="M12 4a8 8 0 1 0 8 8h-2a6 6 0 1 1-6-6v3l5-4-5-4z" fill="currentColor"/></symbol>
-    <symbol id="i-arm-up" viewBox="0 0 24 24"><path d="M4 20h9v-2H4zm1-4l5-9 3 1.5L9 17zm10-9V3l5 4.5-5 4.5V9z" fill="currentColor"/></symbol>
-    <symbol id="i-arm-down" viewBox="0 0 24 24"><path d="M4 20h9v-2H4zm1-4l5-9 3 1.5L9 17zm10-3v4l5-4.5L15 8v3z" fill="currentColor"/></symbol>
+    <symbol id="i-arm-up" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h8M7 20v-4l7-7"/><path d="M18 16V4M14.5 7.5 18 4l3.5 3.5"/></g></symbol>
+    <symbol id="i-arm-down" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h8M7 20v-4l7-7"/><path d="M18 4v12M14.5 12.5 18 16l3.5-3.5"/></g></symbol>
     <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4zm12.5-1.5a6 6 0 0 1 0 9l-1.2-1.4a4 4 0 0 0 0-6.2z" fill="currentColor"/></symbol>
     <symbol id="i-stop" viewBox="0 0 24 24"><path d="M8.3 3h7.4L21 8.3v7.4L15.7 21H8.3L3 15.7V8.3z" fill="currentColor"/></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="currentColor"/></symbol>
@@ -40,6 +40,7 @@
     <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-6 4 12 2-6h6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-info" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm-1 4h2v2h-2zm0 4h2v6h-2z" fill="currentColor"/></symbol>
     <symbol id="i-car" viewBox="0 0 24 24"><path d="M5 10l1.6-4.2A2 2 0 0 1 8.5 4.5h7a2 2 0 0 1 1.9 1.3L19 10a2 2 0 0 1 2 2v4h-2v1.5a1.5 1.5 0 0 1-3 0V16H8v1.5a1.5 1.5 0 0 1-3 0V16H3v-4a2 2 0 0 1 2-2zm2.3 0h9.4l-1.2-3H8.5zM6.8 12.2a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4zm10.4 0a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4z" fill="currentColor"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="12" r="3.8"/><path d="M11.3 12H21M18 12v4M21 12v3"/></g></symbol>
   </defs>
 </svg>
 
@@ -53,119 +54,121 @@
     </div>
     <p class="vehicle-chip" id="vehicle-chip" aria-live="polite">
       <svg aria-hidden="true"><use href="#i-car"/></svg>
-      <span>Vehículo: <strong id="vehicle-name">Cargando…</strong> <span id="vehicle-id" class="text-nowrap"></span></span>
+      <span><strong id="vehicle-name">Cargando…</strong> <span id="vehicle-id" class="text-nowrap"></span></span>
     </p>
+    <ul class="indicators" id="indicators" aria-label="Conectividad">
+      <li class="indicator" id="ind-ws" data-state="connecting" title="Sesión WebSocket del navegador con la API">
+        <svg class="ind-icon" aria-hidden="true"><use href="#i-wifi"/></svg>
+        <span class="ind-text"><span class="ind-label"><span aria-hidden="true">WSS</span><span class="visually-hidden">WebSocket (WSS)</span></span>
+        <strong class="ind-value" data-role="value">Conectando…</strong></span>
+      </li>
+      <li class="indicator" id="ind-api" data-state="checking" title="Servidor AWS con las APIs">
+        <svg class="ind-icon" aria-hidden="true"><use href="#i-server"/></svg>
+        <span class="ind-text"><span class="ind-label"><span aria-hidden="true">AWS</span><span class="visually-hidden">Servidor AWS (APIs)</span></span>
+        <strong class="ind-value" data-role="value">Comprobando…</strong></span>
+      </li>
+      <li class="indicator" id="ind-rds" data-state="unverified" title="Amazon RDS (solo con diagnóstico del backend)">
+        <svg class="ind-icon" aria-hidden="true"><use href="#i-db"/></svg>
+        <span class="ind-text"><span class="ind-label"><span aria-hidden="true">RDS</span><span class="visually-hidden">Amazon RDS</span></span>
+        <strong class="ind-value" data-role="value">Sin verificar</strong></span>
+      </li>
+    </ul>
+    <button type="button" class="icon-btn" id="btn-about" aria-label="Acerca de esta aplicación" title="Acerca de">
+      <svg aria-hidden="true"><use href="#i-info"/></svg>
+    </button>
   </header>
 
-  <div class="app-body">
-    <nav class="side-nav" aria-label="Secciones">
-      <a href="#control" class="active"><svg aria-hidden="true"><use href="#i-gamepad"/></svg>Control</a>
-      <a href="#demo"><svg aria-hidden="true"><use href="#i-film"/></svg>DEMO</a>
-      <a href="#estado"><svg aria-hidden="true"><use href="#i-pulse"/></svg>Estado</a>
-      <a href="#acerca"><svg aria-hidden="true"><use href="#i-info"/></svg>Acerca de</a>
-    </nav>
+  <div id="load-error" class="load-error d-none" role="alert">
+    <span id="load-error-text"></span>
+    <button type="button" class="btn btn-sm btn-light" id="btn-reload">Reintentar</button>
+  </div>
 
-    <main class="app-main" id="main">
-      <div id="load-error" class="alert alert-danger d-none" role="alert">
-        <span id="load-error-text"></span>
-        <button type="button" class="btn btn-sm btn-light ms-2" id="btn-reload">Reintentar</button>
-      </div>
+  <main class="pad-area" id="control" aria-label="Control del vehículo">
+    <div class="gamepad">
+      <svg class="pad-shape" viewBox="0 0 1040 400" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="padFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#72130d"/><stop offset="1" stop-color="#1a0605"/></linearGradient>
+        </defs>
+        <path d="M150 22H890C985 22 1030 100 1030 205 1030 305 1000 378 925 380 872 382 852 346 790 344H250C188 346 168 382 115 380 40 378 10 305 10 205 10 100 55 22 150 22Z" fill="url(#padFill)" stroke="#ec4e29" stroke-width="5" vector-effect="non-scaling-stroke"/>
+        <path d="M190 44H850" fill="none" stroke="#ffffff" stroke-opacity=".14" stroke-width="4" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+      </svg>
 
-      <section class="panel panel-status" id="estado" aria-labelledby="h-estado">
-        <h2 id="h-estado" class="panel-title">Conectividad</h2>
-        <ul class="indicators" id="indicators">
-          <li class="indicator" id="ind-ws" data-state="connecting">
-            <svg class="ind-icon" aria-hidden="true"><use href="#i-wifi"/></svg>
-            <span class="ind-label">WebSocket (WSS)</span>
-            <strong class="ind-value" data-role="value">Conectando…</strong>
-          </li>
-          <li class="indicator" id="ind-api" data-state="checking">
-            <svg class="ind-icon" aria-hidden="true"><use href="#i-server"/></svg>
-            <span class="ind-label">Servidor AWS (APIs)</span>
-            <strong class="ind-value" data-role="value">Comprobando…</strong>
-          </li>
-          <li class="indicator" id="ind-rds" data-state="unverified">
-            <svg class="ind-icon" aria-hidden="true"><use href="#i-db"/></svg>
-            <span class="ind-label">Amazon RDS</span>
-            <strong class="ind-value" data-role="value">Sin verificar</strong>
-          </li>
-        </ul>
-        <p class="note">Una sesión WSS abierta o una API que responde <strong>no</strong> confirman que el vehículo físico esté en línea.</p>
-      </section>
-
-      <section class="panel panel-control" id="control" aria-labelledby="h-control">
-        <h2 id="h-control" class="panel-title">Control del vehículo</h2>
-        <div class="control-layout">
-          <div class="joystick-wrap">
-            <div id="joystick" class="joystick" role="application" tabindex="0"
-                 aria-label="Joystick. Flechas del teclado para mover; al soltar se detiene. Escape detiene.">
-              <span class="js-arrow js-up" data-dir="AVANZAR"><svg aria-hidden="true"><use href="#i-up"/></svg></span>
-              <span class="js-arrow js-down" data-dir="RETROCEDER"><svg aria-hidden="true"><use href="#i-down"/></svg></span>
-              <span class="js-arrow js-left" data-dir="GIRAR_IZQUIERDA"><svg aria-hidden="true"><use href="#i-left"/></svg></span>
-              <span class="js-arrow js-right" data-dir="GIRAR_DERECHA"><svg aria-hidden="true"><use href="#i-right"/></svg></span>
-              <span class="js-knob" id="joystick-knob"></span>
-            </div>
-            <p class="joystick-state" id="joystick-state" aria-live="off">Neutral</p>
-          </div>
-          <div class="actions">
-            <div class="extras" id="extras" role="group" aria-label="Movimientos disponibles"></div>
-            <button type="button" id="btn-stop" class="btn-stop" disabled>
-              <svg aria-hidden="true"><use href="#i-stop"/></svg><span>DETENER</span>
-            </button>
+      <section class="zone zone-left" aria-label="Joystick">
+        <div class="ring">
+          <div id="joystick" class="joystick" role="application" tabindex="0"
+               aria-label="Joystick. Flechas del teclado para mover; al soltar se detiene. Escape detiene.">
+            <span class="js-arrow js-up" data-dir="AVANZAR"><svg aria-hidden="true"><use href="#i-up"/></svg></span>
+            <span class="js-arrow js-down" data-dir="RETROCEDER"><svg aria-hidden="true"><use href="#i-down"/></svg></span>
+            <span class="js-arrow js-left" data-dir="GIRAR_IZQUIERDA"><svg aria-hidden="true"><use href="#i-left"/></svg></span>
+            <span class="js-arrow js-right" data-dir="GIRAR_DERECHA"><svg aria-hidden="true"><use href="#i-right"/></svg></span>
+            <span class="js-knob" id="joystick-knob"></span>
           </div>
         </div>
-        <div class="action-log" id="action-log" role="status" aria-live="polite">
-          <span class="log-main" id="log-main">Listo. Esperando catálogo del vehículo…</span>
-          <span class="log-evidence" id="log-evidence"></span>
-        </div>
+        <p class="joystick-state" id="joystick-state" aria-live="off">Neutral</p>
       </section>
 
-      <section class="panel panel-demo" id="demo" aria-labelledby="h-demo">
-        <h2 id="h-demo" class="panel-title">Secuencia DEMO</h2>
-        <div class="demo-row">
+      <section class="zone zone-center" aria-label="Detener y DEMO">
+        <button type="button" id="btn-stop" class="btn-stop" disabled aria-label="DETENER">
+          <svg aria-hidden="true"><use href="#i-stop"/></svg><span>DETENER</span>
+        </button>
+        <div class="demo-box" id="demo">
           <label for="demo-select" class="visually-hidden">DEMO disponible</label>
           <select id="demo-select" class="form-select" disabled><option>Cargando DEMO…</option></select>
-          <button type="button" id="btn-demo-start" class="btn btn-demo-start" disabled>
-            <svg aria-hidden="true"><use href="#i-play"/></svg><span>Ejecutar</span>
-          </button>
-          <button type="button" id="btn-demo-cancel" class="btn btn-demo-cancel" disabled>
-            <svg aria-hidden="true"><use href="#i-cancel"/></svg><span>Cancelar</span>
-          </button>
-        </div>
-        <details class="key-box" id="key-box">
-          <summary>Clave de API (necesaria para ejecutar/cancelar DEMO)</summary>
-          <div class="key-row">
-            <label for="api-key" class="visually-hidden">Clave de API</label>
-            <input id="api-key" class="form-control" type="password" autocomplete="off" spellcheck="false"
-                   placeholder="Escríbela aquí; no se guarda en el código">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="key-remember">
-              <label class="form-check-label" for="key-remember">Recordar solo en esta pestaña</label>
-            </div>
+          <div class="demo-actions">
+            <button type="button" id="btn-demo-start" class="round-btn start" disabled aria-label="Ejecutar DEMO" title="Ejecutar DEMO"><svg aria-hidden="true"><use href="#i-play"/></svg></button>
+            <button type="button" id="btn-demo-cancel" class="round-btn cancel" disabled aria-label="Cancelar DEMO" title="Cancelar DEMO"><svg aria-hidden="true"><use href="#i-cancel"/></svg></button>
+            <button type="button" id="btn-key" class="round-btn key" aria-label="Clave de API" title="Clave de API (necesaria para DEMO)"><svg aria-hidden="true"><use href="#i-key"/></svg></button>
           </div>
-          <p class="note mb-0">La clave solo viaja en el encabezado <code>X-API-Key</code> hacia tu API por HTTPS. No se publica en GitHub.</p>
-        </details>
-        <p class="demo-status" id="demo-status" role="status" aria-live="polite">Sin DEMO en ejecución.</p>
-        <div class="progress demo-progress d-none" id="demo-progress" aria-hidden="true"><div class="progress-bar" id="demo-bar" style="width:0%"></div></div>
+          <p class="demo-status" id="demo-status" role="status" aria-live="polite">Sin DEMO en ejecución.</p>
+          <div class="progress demo-progress d-none" id="demo-progress" aria-hidden="true"><div class="progress-bar" id="demo-bar" style="width:0%"></div></div>
+        </div>
       </section>
 
-      <section class="panel panel-events" aria-labelledby="h-events">
-        <h2 id="h-events" class="panel-title">Último evento recibido (WSS)</h2>
-        <p class="event-line" id="event-line">Sin eventos todavía.</p>
+      <section class="zone zone-right" aria-label="Movimientos disponibles">
+        <div class="extras" id="extras" role="group" aria-label="Movimientos disponibles"></div>
       </section>
+    </div>
+  </main>
 
-      <section class="panel panel-about" id="acerca" aria-labelledby="h-about">
-        <h2 id="h-about" class="panel-title">Acerca de</h2>
-        <p class="mb-1">Aplicación de Control (Etapa 1). Envía comandos a la API REST y escucha eventos por WebSocket.</p>
-        <p class="note mb-0">API aceptada ≠ vehículo ejecutó el movimiento: la ejecución física se confirmará más adelante con señales del ESP8266/ESP32.</p>
-      </section>
-    </main>
+  <div class="action-log" id="action-log" role="status" aria-live="polite" data-kind="idle">
+    <span class="log-main" id="log-main">Cargando catálogo…</span>
+    <span class="log-evidence" id="log-evidence"></span>
+    <span class="event-line" id="event-line">Sin eventos WSS todavía.</span>
   </div>
 
   <footer class="app-footer">
     <p id="credits">Desarrollado por <span id="credits-name">—</span> · <span id="credits-year">—</span></p>
   </footer>
 </div>
+
+<dialog id="key-box" class="dlg" aria-labelledby="key-title">
+  <form method="dialog">
+    <h2 id="key-title" class="dlg-title"><svg aria-hidden="true"><use href="#i-key"/></svg> Clave de API</h2>
+    <p class="dlg-text">Solo se necesita para <strong>ejecutar o cancelar DEMO</strong>. No se guarda en el código ni en GitHub.</p>
+    <label for="api-key" class="visually-hidden">Clave de API</label>
+    <input id="api-key" class="form-control" type="password" autocomplete="off" spellcheck="false" placeholder="Escribe la clave de API">
+    <div class="form-check my-2">
+      <input class="form-check-input" type="checkbox" id="key-remember">
+      <label class="form-check-label" for="key-remember">Recordar solo en esta pestaña</label>
+    </div>
+    <button class="btn btn-danger w-100" value="ok">Listo</button>
+  </form>
+</dialog>
+
+<dialog id="about-box" class="dlg" aria-labelledby="about-title">
+  <form method="dialog">
+    <h2 id="about-title" class="dlg-title"><svg aria-hidden="true"><use href="#i-info"/></svg> Acerca de</h2>
+    <p class="dlg-text">Aplicación de Control (Etapa 1): envía comandos a la API REST y escucha eventos por WebSocket.</p>
+    <ul class="dlg-list">
+      <li><strong>WSS</strong>: sesión WebSocket real del navegador.</li>
+      <li><strong>AWS</strong>: la API responde a <code>/salud</code>.</li>
+      <li><strong>RDS</strong>: solo con el diagnóstico <code>/salud/rds</code>; si no existe, «Sin verificar».</li>
+    </ul>
+    <p class="dlg-text">Ninguno confirma que el <strong>vehículo físico</strong> esté en línea, ni que ejecutó un movimiento: «Aceptado por la API» y «Evento WSS» solo prueban el mensaje.</p>
+    <p class="dlg-text mb-2">Teclado: flechas/WASD mueven el joystick; <kbd>Esc</kbd> detiene.</p>
+    <button class="btn btn-danger w-100" value="ok">Cerrar</button>
+  </form>
+</dialog>
 
 <div class="toast-zone" id="toast-zone" aria-live="assertive" aria-atomic="true"></div>
 <noscript><p class="p-3">Esta aplicación necesita JavaScript.</p></noscript>
