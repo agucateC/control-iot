@@ -63,8 +63,11 @@ class App {
   }
 
   #credits() {
-    setText(document.getElementById('credits-name'), CONFIG.STUDENT_NAME);
-    setText(document.getElementById('credits-year'), String(CONFIG.YEAR));
+    for (const n of document.querySelectorAll('[data-credit="year"]')) setText(n, String(CONFIG.YEAR));
+    setText(document.getElementById('credits-app'), CONFIG.APP_NAME);
+    const name = document.getElementById('credits-name');
+    setText(name, CONFIG.STUDENT_NAME);
+    if (CONFIG.STUDENT_URL) name.href = CONFIG.STUDENT_URL; else name.removeAttribute('href');
   }
 
   async loadVehicle() {

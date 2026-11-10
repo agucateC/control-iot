@@ -24,8 +24,10 @@ function resolveVehicleId(defaultId) {
 const API_BASE_URL = resolveApiBase('https://drift-king.duckdns.org');
 
 export const CONFIG = Object.freeze({
-  /** Datos del alumno para el pie de página. */
-  STUDENT_NAME: 'Nombre Apellido Apellido',
+  /** Datos del pie de página: © AÑO APP_NAME. Todos los derechos reservados. Desarrollado por STUDENT_NAME · AÑO */
+  APP_NAME: 'Control IoT',
+  STUDENT_NAME: 'Carlos Omar Cruz Ramos',
+  STUDENT_URL: 'https://github.com/agucateC',      // enlace del nombre (GitHub); '' para mostrarlo sin enlace
   YEAR: 2026,
 
   API_BASE_URL,

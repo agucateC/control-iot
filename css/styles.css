@@ -115,8 +115,10 @@ svg { width: 1.25em; height: 1.25em; flex: none; }
 .action-log[data-kind="ok"] { border-color: #1f8b62; } .action-log[data-kind="ok"] .log-main { color: var(--ok); }
 .action-log[data-kind="error"] { border-color: #b33a3a; } .action-log[data-kind="error"] .log-main { color: var(--bad); }
 .action-log[data-kind="busy"] { border-color: #9b7414; } .action-log[data-kind="busy"] .log-main { color: var(--warn); }
-.app-footer { padding: .25rem .6rem calc(.3rem + var(--safe-b)); text-align: center; font-size: .72rem; color: var(--muted); }
-.app-footer p { margin: 0; overflow-wrap: anywhere; line-height: 1.2; }
+.app-footer { padding: .25rem .6rem calc(.3rem + var(--safe-b)); text-align: center; font-size: .7rem; color: #9c8680; }
+.app-footer p { margin: 0; overflow-wrap: anywhere; line-height: 1.25; }
+.app-footer a { color: var(--r3); text-decoration: underline; text-underline-offset: 2px; font-weight: 600; }
+.app-footer a:hover { color: var(--r4); } .app-footer a:not([href]) { text-decoration: none; }
 .toast-zone { position: fixed; left: .75rem; right: .75rem; bottom: calc(4.5rem + var(--safe-b)); display: grid; gap: .4rem; z-index: 50; pointer-events: none; }
 .toast-msg { pointer-events: auto; background: var(--k0); border: 2px solid var(--r3); color: #fff; padding: .5rem .8rem; border-radius: 12px; font-weight: 700; font-size: .85rem; box-shadow: 0 6px 18px rgba(0,0,0,.6); }
 .toast-msg.error { background: #3a0b08; }
@@ -155,12 +157,16 @@ svg { width: 1.25em; height: 1.25em; flex: none; }
   .app-header { grid-template-columns: auto auto 1fr auto; grid-template-areas: "brand veh ind info"; padding-block: calc(.3rem + var(--safe-t)) .3rem; }
   .indicators { justify-self: end; width: min(100%, 520px); }
 }
-@media (max-width: 760px) and (orientation: landscape) { .brand-title { display: none; } .app-header { grid-template-columns: auto auto 1fr auto; grid-template-areas: "brand veh ind info"; } }
+@media (max-width: 760px) and (orientation: landscape) {
+  .brand-title { display: none; } .app-header { grid-template-columns: auto auto 1fr auto; grid-template-areas: "brand veh ind info"; column-gap: .4rem; }
+  .indicators { gap: .25rem; } .indicator { padding: .15rem .3rem; gap: .2rem; } .ind-icon { width: 1rem; height: 1rem; } .ind-value { font-size: .68rem; }
+}
 @media (max-height: 440px) {
   .app-header { padding-block: calc(.2rem + var(--safe-t)) .2rem; } .indicator { padding: .15rem .35rem; } .icon-btn { width: 34px; height: 34px; }
   .action-log { display: grid; grid-template-columns: auto 1fr; column-gap: .6rem; padding-block: .15rem; } .event-line { grid-column: 1 / -1; display: none; }
   .log-main { font-size: .72rem; } .log-evidence { font-size: .64rem; }
   .app-footer { padding-block: .1rem calc(.15rem + var(--safe-b)); font-size: .66rem; }
+  .credit-line { display: inline; } .credit-line + .credit-line::before { content: " "; }
   .pad-area { padding-block: .1rem; }
   .load-error { top: calc(3rem + var(--safe-t)); }
 }
@@ -180,7 +186,7 @@ svg { width: 1.25em; height: 1.25em; flex: none; }
   .btn-stop { height: clamp(40px, 7.6cqh, 50px); font-size: 1rem; }
   .demo-box .form-select, .round-btn { height: 36px; } .round-btn { width: 36px; }
   .ring { padding: 4%; } .joystick-state { display: none; }
-  .app-footer { font-size: .66rem; padding-top: .1rem; }
+  .app-footer { font-size: .64rem; padding-top: .1rem; }
 }
 
 .round-btn.key.has-key { background: var(--r2); color: #fff; border-color: #ffb199; }
