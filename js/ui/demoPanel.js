@@ -16,13 +16,16 @@ export class DemoPanel {
     this.keyInput = root.getElementById('api-key');
     this.remember = root.getElementById('key-remember');
     this.keyBox = root.getElementById('key-box');
+    this.keyBtn = root.getElementById('btn-key');
+    this.keyBtn.addEventListener('click', () => this.#openKey());
 
     try { const k = sessionStorage.getItem(KEY_STORAGE); if (k) { this.#apiKey = k; this.keyInput.value = k; this.remember.checked = true; } } catch { /* sin storage */ }
     this.keyInput.addEventListener('input', () => { this.#apiKey = this.keyInput.value.trim(); this.#persist(); this.render(this.#demo.state); });
     this.remember.addEventListener('change', () => this.#persist());
     this.select.addEventListener('change', () => this.#demo.select(this.select.value));
-    this.start.addEventListener('click', () => this.#guardKey(() => this.#demo.start()));
-    this.cancel.addEventListener('click', () => this.#guardKey(() => this.#demo.cancel()));
+    this.start.addEventListener('click', () => { if (!this.start.disabled) this.#guardKey(() => this.#demo.start()); });
+    this.cancel.addEventListener('click', () => { if (!this.cancel.disabled) this.#guardKey(() => this.#demo.cancel()); });
+    this.keyBox.addEventListener('close', () => this.keyBtn.classList.toggle('has-key', Boolean(this.#apiKey)));
     this.#demo.on('change', (s) => this.render(s));
   }
 
@@ -33,8 +36,9 @@ export class DemoPanel {
   #persist() {
     try { if (this.remember.checked && this.#apiKey) sessionStorage.setItem(KEY_STORAGE, this.#apiKey); else sessionStorage.removeItem(KEY_STORAGE); } catch { /* sin storage */ }
   }
+  #openKey() { if (typeof this.keyBox.showModal === 'function') { if (!this.keyBox.open) this.keyBox.showModal(); } else this.keyBox.setAttribute('open', ''); this.keyInput.focus(); }
   #guardKey(fn) {
-    if (!this.#apiKey) { this.keyBox.open = true; this.keyInput.focus(); setText(this.status, 'Escribe la clave de API para ejecutar o cancelar una DEMO.'); this.status.dataset.kind = 'error'; return; }
+    if (!this.#apiKey) { this.#openKey(); setText(this.status, 'Escribe la clave de API para ejecutar o cancelar una DEMO.'); this.status.dataset.kind = 'error'; return; }
     fn();
   }
 
@@ -51,6 +55,7 @@ export class DemoPanel {
     this.select.disabled = busy || !s.demos.length;
     this.start.disabled = busy || !s.selected;
     this.cancel.disabled = !s.running || s.cancelling;
+    this.start.dataset.state = s.starting ? 'sending' : 'idle';
     setText(this.status, s.message);
     this.status.dataset.kind = s.kind;
     const pct = s.total ? Math.round((s.orden / s.total) * 100) : 0;

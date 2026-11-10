@@ -43,9 +43,13 @@ export class ControlPanel {
     this.#joystick.setAvailability(catalog);
     this.#extrasRoot.replaceChildren();
     this.#buttons.clear();
+    const n = catalog.extras.length;
+    const cols = n <= 6 ? 3 : 4;                      // la cuadrícula se ajusta al número real de botones
+    this.#extrasRoot.style.setProperty('--cols', String(cols));
+    this.#extrasRoot.style.setProperty('--rows', String(Math.max(1, Math.ceil(n / cols))));
     for (const c of catalog.extras) {
-      const b = el('button', { cls: 'cmd-btn', attrs: { type: 'button', 'data-key': c.key, 'data-state': 'idle', title: `${c.nombre} (código ${c.codigo})` },
-        children: [icon(c.icon), el('span', { text: c.label })] });
+      const b = el('button', { cls: 'cmd-btn', attrs: { type: 'button', 'data-key': c.key, 'data-state': 'idle', title: `${c.label} · ${c.nombre} (código ${c.codigo})`, 'aria-label': c.label },
+        children: [icon(c.icon), el('span', { cls: 'lbl-l', text: c.short ?? c.label }), el('span', { cls: 'lbl-s', text: (c.short ?? c.label).split(' ')[0] })] });
       this.#bind(b, c);
       this.#extrasRoot.append(b);
       this.#buttons.set(c.key, b);

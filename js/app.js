@@ -36,6 +36,8 @@ class App {
     this.#credits();
     setText(document.getElementById('vehicle-id'), `(ID: ${CONFIG.VEHICLE_ID})`);
     document.getElementById('btn-reload').addEventListener('click', () => this.loadVehicle());
+    const about = document.getElementById('about-box');
+    document.getElementById('btn-about').addEventListener('click', () => (typeof about.showModal === 'function' ? about.showModal() : about.setAttribute('open', '')));
 
     this.socket.on('state', ({ state, ...info }) => {
       this.status.setWs(state, { state, ...info });
@@ -78,7 +80,7 @@ class App {
       this.controlPanel.setCatalog(catalog);
       this.demo.setDemos(v.demos);
       if (!catalog.stop) toast('El catálogo no tiene DETENER: créalo para poder detener el vehículo.', { error: true, ms: 7000 });
-      setText(document.getElementById('log-main'), 'Listo. Mantén presionado un control para mover el vehículo.');
+      setText(document.getElementById('log-main'), 'Listo: mantén presionado un control.');
     } catch (e) {
       this.loaded = false;
       setText(document.getElementById('load-error-text'), `No se pudo cargar el vehículo ${CONFIG.VEHICLE_ID}. ${friendlyMessage(e)}`);
