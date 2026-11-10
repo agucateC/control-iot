@@ -31,7 +31,7 @@ Prerrequisitos: API en AWS con v1.1 (o la anterior), `CORS_ORIGINS` con tu orige
 ## D. DEMO
 | # | Acción | Resultado esperado |
 |---|---|---|
-| D1 | Ejecutar sin clave | Abre «Clave de API» y pide escribirla; no hay POST |
+| D1 | Tocar ▶ sin clave | Se abre el cuadro 🔑 «Clave de API»; no hay POST. Escríbela y pulsa Enter/«Listo» |
 | D2 | Clave incorrecta | «La clave de API es incorrecta» (403) |
 | D3 | Ejecutar con clave válida | En Postman: `demo_inicio`, N×`demo_movimiento` (orden 1..N), `demo_fin`. La barra avanza. Controles manuales deshabilitados; «Ejecutar» deshabilitado |
 | D4 | Cancelar a mitad (o DETENER) | `demo_cancelada`; controles se rehabilitan |
@@ -48,7 +48,7 @@ Prerrequisitos: API en AWS con v1.1 (o la anterior), `CORS_ORIGINS` con tu orige
 | E5 | Modo avión en el celular y volver | WSS se reconecta solo |
 
 ## F. Diseño
-Probar en F12 (modo dispositivo) a 320×568, 390×844, 844×390 (horizontal), 768×1024 y 1280×800: sin scroll horizontal, joystick completo, DETENER visible, pie debajo de los controles, objetivos táctiles ≥ 44 px.
+Probar en F12 (modo dispositivo) a 320×568, 360×640, 390×844, 568×320, 667×375, 844×390 (horizontal), 768×1024 y 1280×800: **todo visible en una sola pantalla, sin scroll** (ni vertical ni horizontal), joystick completo, DETENER visible, pie sin superponerse, objetivos táctiles ≥ 38 px, estados de conectividad sin recortar.
 
 ## G. Pruebas automatizadas (opcional)
-En el ZIP del backend: `pytest` (30 pruebas) y `e2e/` (Playwright + cliente WS independiente, 50 comprobaciones). Ver `e2e/README.md`.
+En el ZIP del backend: `pytest` (30 pruebas) y `e2e/` (Playwright + cliente WS independiente, 107 comprobaciones, incluida la regla de una sola pantalla en 13 tamaños). Ver `e2e/README.md`.

@@ -13,6 +13,10 @@
 - [ ] Tres indicadores cambian ante caída y recuperación; RDS «Sin verificar» sin diagnóstico
 - [ ] Verificación independiente con Postman/Thunder Client (mismo `timestamp`)
 
+**Diseño**
+- [ ] Todo cabe en una pantalla en móvil (vertical y horizontal), sin scroll
+- [ ] Iconos en todos los botones; DETENER siempre visible
+
 **Accesibilidad**
 - [ ] Teclado completo (Tab, Enter/Espacio, flechas, Escape), foco visible, enlace «Saltar al control»
 - [ ] Estados con texto + icono + color (no solo color); regiones `aria-live`
