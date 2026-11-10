@@ -25,7 +25,7 @@ const API_BASE_URL = resolveApiBase('https://drift-king.duckdns.org');
 
 export const CONFIG = Object.freeze({
   /** Datos del alumno para el pie de página. */
-  STUDENT_NAME: 'Carlos Omar Cruz Ramos',
+  STUDENT_NAME: 'Nombre Apellido Apellido',
   YEAR: 2026,
 
   API_BASE_URL,
