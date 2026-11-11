@@ -1,7 +1,7 @@
 # Seguridad
 
-- **Sin secretos públicos**: el repositorio no contiene claves de AWS, credenciales de RDS, tokens ni la `X-API-Key`. Verificado con búsqueda automática en las pruebas.
-- **Clave de API para cliente público**: se teclea en tiempo de uso (memoria; `sessionStorage` solo si se pide). Solo se necesita para ejecutar/cancelar DEMO; los movimientos no la requieren. Limitación asumida: cualquier clave tecleada en un navegador es visible para esa persona; por eso no se publica ni se incrusta. Para control multiusuario real, el backend debería emitir tokens de sesión de corta vida (fuera del alcance de esta etapa).
+- **Sin credenciales de infraestructura**: el repositorio no contiene claves de AWS ni credenciales de RDS.
+- **`X-API-Key` en el código (decisión del autor)**: `API_KEY` está en `assets/js/config.js` y se publica con el sitio, por lo que cualquiera que abra el código la puede leer y ejecutar DEMO. Es una limitación asumida; si se filtra, cámbiala en el servidor (`.env`) y en `config.js`. Para control multiusuario real, el backend debería emitir tokens de sesión de corta duración.
 - **CORS no es autenticación**: solo indica al navegador qué orígenes pueden leer respuestas. Se configura con `CORS_ORIGINS` (sin comodín, sin credenciales, métodos GET/POST/PUT/DELETE/OPTIONS, headers `Content-Type` y `X-API-Key`). La protección real es la `X-API-Key` en el servidor.
 - **HTTPS/WSS**: la página es HTTPS, la API HTTPS y el socket WSS. `?api=` solo acepta `https://` o `http://localhost`; `socketClient` bloquea `ws://` desde páginas HTTPS (mixed content) y lo indica.
 - **JSON remoto no confiable**: se valida forma y tipos antes de usar; solo se aceptan eventos del vehículo propio y tipos conocidos; strings acotados.

@@ -19,7 +19,7 @@ Navegador (GitHub Pages, HTTPS)
 
 | Capa | Módulos | Regla |
 |---|---|---|
-| Vista | `index.html`, `css/`, `ui/*` | Solo DOM y gestos; contenido remoto con `textContent` |
+| Vista | `index.html`, `assets/css/`, `assets/js/ui/*` | Solo DOM y gestos; contenido remoto con `textContent` |
 | Dominio | `domain/*` | Reglas de negocio; sin DOM ni `fetch` |
 | Servicios | `services/*` | Red: REST, WSS, salud. Validan JSON remoto |
 | Estado | `state/store.js`, emisores | Observables simples |

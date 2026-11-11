@@ -19,7 +19,7 @@ class App {
   constructor() {
     this.status = new StatusPanel();
     this.demo = null;
-    this.api = new ApiClient({ baseUrl: CONFIG.API_BASE_URL, timeoutMs: CONFIG.REQUEST_TIMEOUT_MS, getApiKey: () => this.demoPanel?.getApiKey() ?? '' });
+    this.api = new ApiClient({ baseUrl: CONFIG.API_BASE_URL, timeoutMs: CONFIG.REQUEST_TIMEOUT_MS, getApiKey: () => CONFIG.API_KEY });
     this.vehicle = new VehicleService(this.api, CONFIG.VEHICLE_ID);
     this.socket = new SocketClient(CONFIG.VEHICLE_ID);
     this.health = new HealthMonitor(this.api, CONFIG.ENDPOINTS.detalle(CONFIG.VEHICLE_ID));
@@ -54,7 +54,7 @@ class App {
       if (api === 'up' && !this.loaded) this.loadVehicle();   // se recupera sola cuando la API vuelve
     });
     this.demo.on('change', (s) => this.commands.setDemoRunning(s.running));
-    this.commands.on('demoStop', () => this.demoPanel.cancelWithKey());   // DETENER durante DEMO = cancelar
+    this.commands.on('demoStop', () => this.demoPanel.cancelDemo());   // DETENER durante DEMO = cancelar
 
     this.status.setWs('connecting'); this.status.setApi('checking'); this.status.setRds('unverified');
     this.socket.start();

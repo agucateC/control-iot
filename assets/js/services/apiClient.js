@@ -3,7 +3,7 @@ import { ApiError } from '../utils/errors.js';
 /**
  * Cliente HTTP genérico (Fetch + async/await). Soporta GET, POST, PUT y DELETE.
  * Centraliza URL base, headers, timeout (AbortController), parseo JSON y errores.
- * La clave de API (si se necesita) llega por `getApiKey()`: nunca está en el código.
+ * La clave de API llega por `getApiKey()` (viene de CONFIG.API_KEY).
  */
 export class ApiClient {
   #baseUrl; #timeoutMs; #getApiKey;

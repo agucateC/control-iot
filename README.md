@@ -12,24 +12,19 @@ Se publica **solo el frontend** en GitHub Pages; el backend (FastAPI + RDS) vive
 ```
 control-iot/
 ├── index.html                 Vista (HTML semántico + sprite de iconos inline)
-├── css/styles.css             Control de videojuego rojo/negro; una sola pantalla (sin scroll) en móvil, vertical y horizontal
-├── js/
-│   ├── app.js                 Composición: crea los módulos y los conecta
-│   ├── config.js              URL base, ID de vehículo, endpoints, tiempos. SIN secretos
-│   ├── services/
-│   │   ├── apiClient.js       Fetch + async/await, GET/POST/PUT/DELETE, timeout, errores
-│   │   ├── vehicleService.js  Contrato real: detalle, movimientos, iniciar/cancelar DEMO, ejecucion-demo
-│   │   ├── socketClient.js    Sesión WSS real: reconexión con backoff, ping/pong, validación de eventos
-│   │   └── healthMonitor.js   GET /salud y GET /salud/rds periódicos
-│   ├── domain/
-│   │   ├── catalog.js         Catálogo → botones disponibles (alias de nombres, sin inventar comandos)
-│   │   ├── commandController.js  ÚNICA tubería de envío (prioridad de DETENER, coalescencia, dedupe)
-│   │   └── demoController.js  Iniciar/cancelar DEMO y seguir su avance por WSS
-│   ├── state/store.js         Estado observable mínimo
-│   ├── ui/                    joystick, controlPanel, statusPanel, demoPanel, toast
-│   └── utils/                 dom (anti-inyección), validators, errors, format, emitter
-├── assets/                    favicon.ico, favicon-32.png, apple-touch-icon, icon-192/512
-├── vendor/bootstrap/          Bootstrap 5.3.8 CSS (MIT)
+├── assets/
+│   ├── css/
+│   │   ├── styles.css         Control de videojuego rojo/negro; una sola pantalla (sin scroll)
+│   │   └── bootstrap.min.css  Bootstrap 5.3.8 (MIT, ver BOOTSTRAP-LICENSE)
+│   ├── img/                   favicon.ico, favicon-32.png, apple-touch-icon.png, icon-192/512.png
+│   └── js/
+│       ├── app.js             Composición: crea los módulos y los conecta
+│       ├── config.js          URL base, API_KEY, ID de vehículo, endpoints, tiempos
+│       ├── services/          apiClient, vehicleService, socketClient (WSS), healthMonitor
+│       ├── domain/            catalog, commandController, demoController
+│       ├── state/store.js     Estado observable mínimo
+│       ├── ui/                joystick, controlPanel, statusPanel, demoPanel, toast
+│       └── utils/             dom (anti-inyección), validators, errors, format, emitter
 ├── docs/                      ARQUITECTURA, CONTRATO_API, PRUEBAS, SEGURIDAD, PUBLICACION, CHECKLIST
 └── .nojekyll
 ```
@@ -51,26 +46,26 @@ Parámetros opcionales de URL (útiles para pruebas):
 
 Si pruebas contra tu API real desde `localhost:8081`, agrega ese origen a `CORS_ORIGINS` en el servidor (ver `docs/PUBLICACION.md`).
 
-## Configuración (`js/config.js`)
+## Configuración (`assets/js/config.js`)
 
 | Constante | Qué es |
 |---|---|
 | `APP_NAME`, `STUDENT_NAME`, `STUDENT_URL`, `YEAR` | Pie de página (el nombre enlaza a `STUDENT_URL`) |
+| `API_KEY` | Clave `X-API-Key` incluida en el código (solo la usan ejecutar/cancelar DEMO) |
 | `API_BASE_URL` | `https://drift-king.duckdns.org` (HTTPS) |
 | `WS_BASE_URL` | Derivada: `https`→`wss` |
 | `VEHICLE_ID` | `2` (grúa) |
 | `ENDPOINTS` | Rutas reales del contrato (`docs/CONTRATO_API.md`) |
 | `RENOVAR_MOVIMIENTO_MS` | `0` = no reenviar el comando mientras se mantiene presionado |
 
-**La clave de API no está en el código**: se escribe en el cuadro del icono 🔑 (solo se necesita para ejecutar/cancelar DEMO)
-y vive en memoria (o en `sessionStorage` si marcas «Recordar solo en esta pestaña»).
+**La clave de API está en `API_KEY`** (`assets/js/config.js`): ya no se pide en pantalla. Como el sitio es público, cualquiera puede verla en el código; si cambias la clave en el servidor, actualízala aquí.
 
 ## Diseño
 
-- **Control de videojuego** en rojo y negro (paleta `#010101 · #72130d · #a02216 · #cc2c20 · #dd3022 · #ec4e29`): joystick circular a la izquierda, **DETENER** grande al centro (con el selector de DEMO y sus iconos ▶ ✕ 🔑) y botones circulares con icono a la derecha.
+- **Control de videojuego** en rojo y negro (paleta `#010101 · #72130d · #a02216 · #cc2c20 · #dd3022 · #ec4e29`): joystick circular a la izquierda, **DETENER** grande al centro (con el selector de DEMO y sus iconos ▶ ✕) y botones circulares con icono a la derecha.
 - **Una sola pantalla, sin deslizar**: el área del control se ajusta al espacio libre (`100dvh`, container queries). En **horizontal** (o pantallas anchas) se ve como mando; en **vertical** se apila: indicadores, joystick, botones, DETENER y DEMO.
 - Los botones muestran icono + etiqueta cuando caben; en pantallas muy pequeñas solo icono (siempre con `aria-label`).
-- La **clave de API** se pide en un cuadro (icono 🔑) y «Acerca de» está en el icono ⓘ.
+- «Acerca de» está en el icono ⓘ.
 - Probado sin scroll ni solapes en 13 tamaños: 320×568 a 1920×1080, vertical y horizontal.
 
 ## Cómo funciona

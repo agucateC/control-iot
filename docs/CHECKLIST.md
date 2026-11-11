@@ -1,7 +1,7 @@
 # Checklist final
 
 **Seguridad**
-- [ ] Ninguna clave/credencial en `js/`, `index.html` ni en el historial de Git
+- [ ] Sin claves de AWS/RDS en `assets/js/`, `index.html` ni en el historial de Git (la `API_KEY` de `config.js` es pública por diseño)
 - [ ] `CORS_ORIGINS` con el origen exacto de GitHub Pages (sin `*`)
 - [ ] API por HTTPS y socket por WSS (sin mixed content)
 - [ ] Sin `innerHTML` con datos remotos

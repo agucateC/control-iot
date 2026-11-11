@@ -1,6 +1,7 @@
 /**
- * Configuración PÚBLICA de la aplicación. No pongas aquí contraseñas, claves de API,
- * claves de AWS ni datos de RDS: este archivo se publica tal cual en GitHub Pages.
+ * Configuración de la aplicación. OJO: este archivo se publica tal cual en GitHub Pages,
+ * así que API_KEY queda visible para cualquiera que abra el código de la página.
+ * No pongas aquí claves de AWS ni datos de RDS.
  */
 const params = new URLSearchParams(globalThis.location?.search ?? '');
 
@@ -31,6 +32,8 @@ export const CONFIG = Object.freeze({
   YEAR: 2026,
 
   API_BASE_URL,
+  /** Clave X-API-Key para las operaciones protegidas (ejecutar/cancelar DEMO). */
+  API_KEY: '7TME%??xjdu%Nohiul%*P%7Ni!37oR@',
   /** WSS derivado de la misma base: https→wss (nunca ws:// desde una página HTTPS). */
   WS_BASE_URL: API_BASE_URL.replace(/^http/i, 'ws'),
   VEHICLE_ID: resolveVehicleId(2),

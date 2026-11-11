@@ -31,9 +31,7 @@ Prerrequisitos: API en AWS con v1.1 (o la anterior), `CORS_ORIGINS` con tu orige
 ## D. DEMO
 | # | Acción | Resultado esperado |
 |---|---|---|
-| D1 | Tocar ▶ sin clave | Se abre el cuadro 🔑 «Clave de API»; no hay POST. Escríbela y pulsa Enter/«Listo» |
-| D2 | Clave incorrecta | «La clave de API es incorrecta» (403) |
-| D3 | Ejecutar con clave válida | En Postman: `demo_inicio`, N×`demo_movimiento` (orden 1..N), `demo_fin`. La barra avanza. Controles manuales deshabilitados; «Ejecutar» deshabilitado |
+| D3 | Ejecutar DEMO | En Postman: `demo_inicio`, N×`demo_movimiento` (orden 1..N), `demo_fin`. La barra avanza. Controles manuales deshabilitados; «Ejecutar» deshabilitado |
 | D4 | Cancelar a mitad (o DETENER) | `demo_cancelada`; controles se rehabilitan |
 | D5 | Revisar `GET /vehiculos/2/historial` antes/después | **Idéntico**: los pasos de DEMO no son movimientos individuales |
 | D6 | Recargar la página con una DEMO en curso | La app detecta la ejecución (`ejecucion-demo`) y habilita Cancelar |
