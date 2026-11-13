@@ -38,17 +38,22 @@
     <symbol id="i-film" viewBox="0 0 24 24"><path d="M4 4h16v16H4zm2 2v2h2V6zm10 0v2h2V6zM6 11v2h2v-2zm10 0v2h2v-2zM6 16v2h2v-2zm10 0v2h2v-2zm-6-10v12h4V6z" fill="currentColor"/></symbol>
     <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-6 4 12 2-6h6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-info" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm-1 4h2v2h-2zm0 4h2v6h-2z" fill="currentColor"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M12 5a7 7 0 0 1 6.3 4H15v2h7V4h-2v3.1A9 9 0 0 0 3 12h2a7 7 0 0 1 7-7zm7 7a7 7 0 0 1-13.3 3H9v-2H2v7h2v-3.1A9 9 0 0 0 21 12z" fill="currentColor"/></symbol>
     <symbol id="i-car" viewBox="0 0 24 24"><path d="M5 10l1.6-4.2A2 2 0 0 1 8.5 4.5h7a2 2 0 0 1 1.9 1.3L19 10a2 2 0 0 1 2 2v4h-2v1.5a1.5 1.5 0 0 1-3 0V16H8v1.5a1.5 1.5 0 0 1-3 0V16H3v-4a2 2 0 0 1 2-2zm2.3 0h9.4l-1.2-3H8.5zM6.8 12.2a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4zm10.4 0a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4z" fill="currentColor"/></symbol>
   </defs>
 </svg>
 
-<a class="skip-link" href="#control">Saltar al control</a>
+<a class="skip-link" href="#control">Saltar al contenido</a>
 
 <div class="app-shell">
   <header class="app-header">
     <div class="brand">
       <svg class="brand-icon" aria-hidden="true"><use href="#i-gamepad"/></svg>
       <h1 class="brand-title">Control IoT</h1>
+      <nav class="view-nav" aria-label="Vistas">
+        <a class="nav-pill" id="nav-control" href="#/control"><svg aria-hidden="true"><use href="#i-gamepad"/></svg><span class="nav-label">Control</span></a>
+        <a class="nav-pill" id="nav-monitoreo" href="#/monitoreo"><svg aria-hidden="true"><use href="#i-pulse"/></svg><span class="nav-label">Monitoreo</span></a>
+      </nav>
     </div>
     <p class="vehicle-chip" id="vehicle-chip" aria-live="polite">
       <svg aria-hidden="true"><use href="#i-car"/></svg>
@@ -81,7 +86,7 @@
     <button type="button" class="btn btn-sm btn-light" id="btn-reload">Reintentar</button>
   </div>
 
-  <main class="pad-area" id="control" aria-label="Control del vehículo">
+  <main class="pad-area" id="control" aria-label="Control del vehículo" tabindex="-1">
     <div class="gamepad">
       <svg class="pad-shape" viewBox="0 0 1040 400" aria-hidden="true" focusable="false">
         <defs>
@@ -127,6 +132,43 @@
     </div>
   </main>
 
+  <main class="monitor" id="monitor" aria-labelledby="mon-title" tabindex="-1" hidden>
+    <div class="mon-head">
+      <h2 class="mon-title" id="mon-title">Monitoreo</h2>
+      <p class="mon-vehicle"><svg aria-hidden="true"><use href="#i-car"/></svg><strong id="mon-vehicle-name">Cargando…</strong> <span id="mon-vehicle-id" class="text-nowrap"></span></p>
+      <button type="button" class="round-btn" id="mon-refresh" aria-label="Actualizar desde la API" title="Actualizar desde la API"><svg aria-hidden="true"><use href="#i-refresh"/></svg></button>
+    </div>
+    <p class="mon-conn" id="mon-conn" role="status" data-state="connecting" hidden></p>
+    <div class="mon-grid">
+      <section class="mon-card" id="mon-card" aria-labelledby="mon-card-title" data-state="loading">
+        <h3 class="mon-card-title" id="mon-card-title"><svg aria-hidden="true"><use href="#i-pulse"/></svg> Último movimiento</h3>
+        <p class="mon-cmd" id="mon-cmd" aria-live="polite" aria-atomic="true">Cargando…</p>
+        <p class="mon-code" id="mon-code" hidden>Código <strong id="mon-code-val"></strong></p>
+        <p class="mon-when" id="mon-when" hidden><time id="mon-time"></time> <span class="mon-zone" id="mon-zone"></span></p>
+        <p class="mon-scope" id="mon-scope"></p>
+        <p class="mon-demo" id="mon-demo" hidden></p>
+        <p class="mon-card-error" id="mon-card-error" role="alert" hidden></p>
+        <ul class="mon-evidence" aria-label="Evidencia del movimiento">
+          <li id="mon-ev-channel" data-state="na"><span class="ev-name">Canal</span><span class="ev-val" data-role="val">—</span></li>
+          <li id="mon-ev-rds" data-state="na"><span class="ev-name">RDS</span><span class="ev-val" data-role="val">—</span></li>
+          <li id="mon-ev-phys" data-state="na"><span class="ev-name">Vehículo</span><span class="ev-val" data-role="val">Ejecución física sin verificar</span></li>
+        </ul>
+      </section>
+      <section class="mon-table-box" aria-labelledby="mon-table-title">
+        <h3 class="mon-table-title" id="mon-table-title">Últimos 10 movimientos</h3>
+        <p class="mon-table-msg" id="mon-table-msg" role="status" data-state="loading">Cargando…</p>
+        <button type="button" class="btn btn-sm btn-light" id="mon-retry" hidden>Reintentar</button>
+        <div class="mon-scroll" id="mon-scroll" role="region" aria-label="Tabla de los últimos movimientos" tabindex="0" hidden>
+          <table class="mon-table" aria-busy="true">
+            <caption class="visually-hidden">Últimos diez movimientos individuales persistidos, del más reciente al más antiguo</caption>
+            <thead><tr><th scope="col" class="c-num">#</th><th scope="col">Movimiento</th><th scope="col">Fecha y Hora</th></tr></thead>
+            <tbody id="mon-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
   <div class="action-log" id="action-log" role="status" aria-live="polite" data-kind="idle">
     <span class="log-main" id="log-main">Cargando catálogo…</span>
     <span class="log-evidence" id="log-evidence"></span>
@@ -149,6 +191,7 @@
       <li><strong>RDS</strong>: solo con el diagnóstico <code>/salud/rds</code>; si no existe, «Sin verificar».</li>
     </ul>
     <p class="dlg-text">Ninguno confirma que el <strong>vehículo físico</strong> esté en línea, ni que ejecutó un movimiento: «Aceptado por la API» y «Evento WSS» solo prueban el mensaje.</p>
+    <p class="dlg-text">MONITOREO muestra el último movimiento y los 10 últimos movimientos individuales guardados en RDS (las DEMO no se guardan en el historial).</p>
     <p class="dlg-text mb-2">Teclado: flechas/WASD mueven el joystick; <kbd>Esc</kbd> detiene.</p>
     <button class="btn btn-danger w-100" value="ok">Cerrar</button>
   </form>

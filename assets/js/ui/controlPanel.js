@@ -7,10 +7,10 @@ import { el, icon, setText } from '../utils/dom.js';
  */
 export class ControlPanel {
   #cmd; #joystick; #extrasRoot; #stopBtn; #buttons = new Map(); #catalog = null; #lock = { owner: null, demo: false };
-  #logBox; #logMain; #logEvidence;
+  #logBox; #logMain; #logEvidence; #isActive;
 
-  constructor({ commandController, joystick, root = document }) {
-    this.#cmd = commandController; this.#joystick = joystick;
+  constructor({ commandController, joystick, root = document, isActive = () => true }) {
+    this.#cmd = commandController; this.#joystick = joystick; this.#isActive = isActive;
     this.#extrasRoot = root.getElementById('extras');
     this.#stopBtn = root.getElementById('btn-stop');
     this.#logBox = root.getElementById('action-log');
@@ -28,13 +28,16 @@ export class ControlPanel {
     this.#stopBtn.addEventListener('pointerdown', (e) => { if (e.button === 0 || e.pointerType !== 'mouse') { e.preventDefault(); this.#stop(); } });
     this.#stopBtn.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) { e.preventDefault(); this.#stop(); } });
     this.#stopBtn.addEventListener('click', (e) => { if (e.detail === 0) this.#stop(); });   // click sintético (lectores de pantalla)
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') this.#stop(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && this.#isActive()) this.#stop(); });
 
     this.#cmd.on('phase', ({ key, state }) => this.#phase(key, state));
     this.#cmd.on('lock', (l) => { this.#lock = l; this.#syncDisabled(); });
     this.#cmd.on('forceRelease', ({ owner }) => { if (owner === 'joystick') this.#joystick.forceNeutral(); });
     this.#cmd.on('action', (a) => this.#log(a));
   }
+
+  /** Al ocultar la vista CONTROL: suelta joystick y botones sostenidos (no envía nada si no había nada). */
+  suspend() { this.#joystick.forceNeutral(); this.#cmd.releaseAll(); }
 
   #stop() { if (!this.#stopBtn.disabled) this.#cmd.stop(); }
 

@@ -80,6 +80,9 @@ export class CommandController extends Emitter {
     this.#pump();
   }
 
+  /** Al salir de la vista CONTROL: si algo seguía sostenido, se suelta (→ DETENER). Sin control activo no envía nada. */
+  releaseAll() { if (this.#owner) this.release(this.#owner); }
+
   /** Acción puntual (giro 90°/360°, sonido…): una sola solicitud. */
   pulse(key, owner = `pulse:${key}`) {
     const cmd = this.#catalog?.get(key);

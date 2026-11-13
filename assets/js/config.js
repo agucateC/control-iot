@@ -45,10 +45,19 @@ export const CONFIG = Object.freeze({
     iniciarDemo: (id, demo) => `/vehiculos/${id}/demos/${demo}/iniciar`,
     cancelarDemo: (id) => `/vehiculos/${id}/ejecucion-demo/cancelar`,
     ejecucionDemo: (id) => `/vehiculos/${id}/ejecucion-demo`,
+    estado: (id) => `/vehiculos/${id}/estado`,
+    historial: (id) => `/vehiculos/${id}/historial`,
     salud: '/salud',
     saludRds: '/salud/rds',
     ws: (id) => `/ws/vehiculos/${id}`,
   }),
+
+  /** MONITOREO. El backend devuelve ya los 10 más recientes (GET /historial) y MySQL entrega fechas sin zona. */
+  HISTORY_LIMIT: 10,
+  DISPLAY_TIME_ZONE: 'America/Mexico_City',
+  SERVER_NAIVE_IS_UTC: true,                 // fecha_hora / fecha_actualizacion sin zona = UTC (ver docs/MONITOREO.md)
+  HISTORY_RETRY_MS: [500, 1500],             // reintentos acotados si el evento WSS aún no aparece en el historial
+  CLOCK_SKEW_WARN_MS: 5 * 60 * 1000,         // aviso si la hora de BD y la del evento difieren más que esto
 
   REQUEST_TIMEOUT_MS: 8000,
   MOVE_TIMEOUT_MS: 5000,
