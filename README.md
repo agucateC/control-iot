@@ -1,4 +1,4 @@
-# Control IoT — Etapa 1 (Aplicación de Control)
+# Control IoT — Etapas 1 y 2 (Control + Monitoreo)
 
 Aplicación web **solo de control** para un vehículo IoT: joystick circular táctil, botones del catálogo,
 **DETENER**, ejecución de **DEMO** y panel de conectividad con **tres indicadores reales**.
@@ -20,14 +20,18 @@ control-iot/
 │   └── js/
 │       ├── app.js             Composición: crea los módulos y los conecta
 │       ├── config.js          URL base, API_KEY, ID de vehículo, endpoints, tiempos
-│       ├── services/          apiClient, vehicleService, socketClient (WSS), healthMonitor
-│       ├── domain/            catalog, commandController, demoController
-│       ├── state/store.js     Estado observable mínimo
-│       ├── ui/                joystick, controlPanel, statusPanel, demoPanel, toast
-│       └── utils/             dom (anti-inyección), validators, errors, format, emitter
-├── docs/                      ARQUITECTURA, CONTRATO_API, PRUEBAS, SEGURIDAD, PUBLICACION, CHECKLIST
+│       ├── services/          apiClient, vehicleService, monitorService, socketClient (WSS), healthMonitor
+│       ├── domain/            catalog, commandController, demoController, monitorController
+│       ├── state/             store, lastMovement (tarjeta), history (tabla)
+│       ├── ui/                joystick, controlPanel, statusPanel, demoPanel, toast, monitorView, viewRouter
+│       └── utils/             dom (anti-inyección), validators, errors, format, datetime, singleFlight, emitter
+├── docs/                      ARQUITECTURA, CONTRATO_API, MONITOREO, PRUEBAS, SEGURIDAD, PUBLICACION, CHECKLIST
 └── .nojekyll
 ```
+
+## Vistas
+- **CONTROL** (`#/control`): joystick, botones, DETENER y DEMO.
+- **MONITOREO** (`#/monitoreo`): último movimiento en tiempo real (REST + WSS) y tabla de los 10 últimos movimientos individuales persistidos, con fecha y hora en `America/Mexico_City`. Detalle, contratos y pruebas en [`docs/MONITOREO.md`](docs/MONITOREO.md).
 
 ## Ejecución local
 

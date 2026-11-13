@@ -25,3 +25,8 @@
 **Publicación**
 - [ ] `STUDENT_NAME` con tu nombre completo; favicon visible en la pestaña; pie visible sin solaparse
 - [ ] Consola sin errores en la URL de GitHub Pages
+
+## MONITOREO (4.2)
+- [ ] `docs/MONITOREO.md` leído; casos P1–P4 ejecutados en producción y con evidencia capturada
+- [ ] `CORS_ORIGINS` del backend incluye el origen de GitHub Pages
+- [ ] Hora de `fecha_hora` verificada (UTC) o `SERVER_NAIVE_IS_UTC` ajustado

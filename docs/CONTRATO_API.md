@@ -10,6 +10,8 @@ Obtenido del código real de la API (`app.openapi()`), no inventado. Base: `http
 | Iniciar DEMO 🔒 | `POST /vehiculos/{id}/demos/{id_demo}/iniciar` | — | 202 `{mensaje,id_vehiculo,id_demo,total_movimientos}` · 409 ya hay DEMO |
 | Cancelar DEMO 🔒 | `POST /vehiculos/{id}/ejecucion-demo/cancelar` | — | 200 `{mensaje}` · 409 si no hay DEMO |
 | Estado de ejecución | `GET /vehiculos/{id}/ejecucion-demo` | — | 200 `{en_ejecucion,id_demo,inicio,total_movimientos}` |
+| Último estado *(MONITOREO)* | `GET /vehiculos/{id}/estado` | — | 200 `{id_vehiculo, vehiculo, id_comando, comando, codigo, conectado, fecha_actualizacion}` |
+| Historial *(MONITOREO)* | `GET /vehiculos/{id}/historial` | — | 200 `[{id_historial, id_vehiculo, comando, codigo, fecha_hora, origen}]` (10 más recientes, DESC, sin DEMO) |
 | Salud API *(nuevo v1.1)* | `GET /salud` | — | 200 `{"servicio":"api","estado":"disponible"}` |
 | Diagnóstico RDS *(nuevo v1.1)* | `GET /salud/rds` | — | 200 `{"servicio":"rds","estado":"disponible","latencia_ms":N}` · 503 `{"estado":"no_disponible"}` |
 | WebSocket | `WSS /ws/vehiculos/{id}` | texto `ping` → `pong` | eventos abajo; cierre `4404` si el vehículo no existe |
