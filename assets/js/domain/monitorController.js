@@ -33,6 +33,7 @@ export class MonitorController {
 
   get active() { return this.#active; }
   setVehicle(name, id) { this.#view.setVehicle(name, id); }
+  setAction(action) { this.#view.setAction(action); }
 
   activate() {
     this.#active = true;

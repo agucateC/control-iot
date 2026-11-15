@@ -1,5 +1,6 @@
 import { el, setText } from '../utils/dom.js';
 import { formatDateTime, zoneLabel } from '../utils/datetime.js';
+import { movementName } from '../domain/catalog.js';
 
 const CONN = {
   open: null,
@@ -23,11 +24,18 @@ export class MonitorView {
     this.evChannel = $('mon-ev-channel'); this.evRds = $('mon-ev-rds');
     this.conn = $('mon-conn'); this.tbody = $('mon-tbody'); this.tableMsg = $('mon-table-msg'); this.scroll = $('mon-scroll');
     this.vehicleName = $('mon-vehicle-name'); this.vehicleId = $('mon-vehicle-id');
+    this.actText = $('mon-action-text'); this.actSteps = $('mon-action-steps'); this.actDetail = $('mon-action-detail');
     this.refreshBtn = $('mon-refresh'); this.retryBtn = $('mon-retry');
     setText(this.zone, zoneLabel());
   }
 
   onRefresh(fn) { this.refreshBtn.addEventListener('click', fn); this.retryBtn.addEventListener('click', fn); }
+  /** Último comando enviado desde ESTA pestaña: Solicitado → Aceptado por la API → Evento WSS. */
+  setAction({ text, steps, detail }) {
+    setText(this.actText, text);
+    setText(this.actSteps, steps ? `${steps.requested ? '✔' : '○'} Solicitado → ${steps.accepted ? '✔' : '○'} Aceptado por la API → ${steps.event ? '✔' : '○'} Evento WSS` : '');
+    setText(this.actDetail, detail ?? '');
+  }
   setVehicle(name, id) { setText(this.vehicleName, name); setText(this.vehicleId, id ? `(ID: ${id})` : ''); }
 
   setConnection(state) {
@@ -45,7 +53,7 @@ export class MonitorView {
     this.errBox.hidden = !s.error;
     setText(this.errBox, s.error ? `Error: ${s.error}` : '');
     const ready = s.kind === 'ready';
-    setText(this.cmd, { loading: 'Cargando…', empty: 'Sin movimientos', error: 'Error' }[s.kind] ?? s.comando);
+    setText(this.cmd, { loading: 'Cargando…', empty: 'Sin movimientos', error: 'Error' }[s.kind] ?? movementName(s.comando));
     this.codeBox.hidden = !(ready && s.codigo !== null);
     setText(this.codeVal, ready && s.codigo !== null ? String(s.codigo) : '');
     this.when.hidden = !(ready && s.at);
@@ -103,7 +111,7 @@ export class MonitorView {
     else when.title = it.fechaRaw ? 'Fecha no interpretable' : 'Sin fecha';
     const tr = el('tr', { attrs: { 'data-id': String(it.id) }, children: [
       el('td', { cls: 'c-num' }),
-      el('td', { cls: 'c-mov', text: it.comando, attrs: { title: `ID #${it.id}${it.codigo !== null ? ` · código ${it.codigo}` : ''}${it.origen ? ` · origen ${it.origen}` : ''}` } }),
+      el('td', { cls: 'c-mov', text: movementName(it.comando), attrs: { title: `${it.comando} · ID #${it.id}${it.codigo !== null ? ` · código ${it.codigo}` : ''}${it.origen ? ` · origen ${it.origen}` : ''}` } }),
       el('td', { cls: 'c-when', children: [when] }),
     ] });
     return tr;

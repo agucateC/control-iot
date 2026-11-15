@@ -11,6 +11,9 @@ import { VehicleService } from './services/vehicleService.js';
 import { ControlPanel } from './ui/controlPanel.js';
 import { DemoPanel } from './ui/demoPanel.js';
 import { Joystick } from './ui/joystick.js';
+import { Lever } from './ui/lever.js';
+import { VoiceControl } from './ui/voiceControl.js';
+import { GestureControl } from './ui/gestureControl.js';
 import { LastMovement } from './state/lastMovement.js';
 import { HistoryStore } from './state/history.js';
 import { MonitorView } from './ui/monitorView.js';
@@ -41,11 +44,13 @@ class App {
         monitoreo: { el: document.getElementById('monitor'), link: document.getElementById('nav-monitoreo'), title: () => `Monitoreo${this.vehicleName ? ` · ${this.vehicleName}` : ''} · Control IoT` },
       },
     });
-    this.controlPanel = new ControlPanel({ commandController: this.commands, joystick, isActive: () => this.router.current === 'control' });
+    this.controlPanel = new ControlPanel({ commandController: this.commands, joystick, lever: new Lever(document.getElementById('lever')), isActive: () => this.router.current === 'control' });
     this.monitor = new MonitorController({
       service: new MonitorService(this.api, CONFIG.VEHICLE_ID), view: new MonitorView(), lastMovement: new LastMovement(), history: new HistoryStore(),
     });
     this.demoPanel = new DemoPanel({ demoController: this.demo });
+    this.voice = new VoiceControl({ button: document.getElementById('btn-voice'), service: this.vehicle });
+    this.gestures = new GestureControl({ button: document.getElementById('btn-gesture'), commandController: this.commands });
     this.loaded = false;
   }
 
@@ -74,11 +79,12 @@ class App {
       if (api === 'up' && !this.loaded) this.loadVehicle();   // se recupera sola cuando la API vuelve
       if (api === 'up') this.monitor.onApiRecovered();
     });
-    this.demo.on('change', (s) => this.commands.setDemoRunning(s.running));
+    this.demo.on('change', (s) => { this.commands.setDemoRunning(s.running); this.voice.setBusy(s.running); this.gestures.setBusy(s.running); });
+    this.commands.on('action', (a) => this.monitor.setAction(a));      // evidencia técnica → MONITOREO
     this.commands.on('demoStop', () => this.demoPanel.cancelDemo());   // DETENER durante DEMO = cancelar
 
     this.router.on('change', ({ from, to }) => {
-      if (from === 'control') this.controlPanel.suspend();            // al salir: suelta lo sostenido (→ DETENER solo si hacía falta)
+      if (from === 'control') { this.controlPanel.suspend(); this.voice.cancel(); this.gestures.stop(); }            // al salir: suelta lo sostenido (→ DETENER solo si hacía falta)
       if (to === 'monitoreo') this.monitor.activate(); else this.monitor.deactivate();
     });
     this.status.setWs('connecting'); this.status.setApi('checking'); this.status.setRds('unverified');
@@ -111,7 +117,7 @@ class App {
       this.controlPanel.setCatalog(catalog);
       this.demo.setDemos(v.demos);
       if (!catalog.stop) toast('El catálogo no tiene DETENER: créalo para poder detener el vehículo.', { error: true, ms: 7000 });
-      setText(document.getElementById('log-main'), 'Listo: mantén presionado un control.');
+      setText(document.getElementById('log-main'), 'Listo');
     } catch (e) {
       this.loaded = false;
       setText(document.getElementById('load-error-text'), `No se pudo cargar el vehículo ${CONFIG.VEHICLE_ID}. ${friendlyMessage(e)}`);

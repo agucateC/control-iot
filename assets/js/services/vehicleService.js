@@ -39,6 +39,14 @@ export class VehicleService {
     return { total: Number(raw?.total_movimientos) || 0 };
   }
 
+  /** POST …/ia/instrucciones (protegido) → 202. La IA (en el servidor) elige los comandos y los ejecuta como una DEMO. */
+  async sendInstruction(texto) {
+    const raw = await this.api.post(CONFIG.ENDPOINTS.instrucciones(this.id), { instruccion: texto },
+      { auth: true, timeoutMs: CONFIG.VOICE_REQUEST_TIMEOUT_MS });
+    return { interpretacion: str(raw?.interpretacion ?? '', 200), total: Number(raw?.total_movimientos) || 0,
+      duracionMs: Number(raw?.duracion_total_ms) || 0 };
+  }
+
   /** POST …/ejecucion-demo/cancelar (protegido). */
   async cancelDemo() {
     await this.api.post(CONFIG.ENDPOINTS.cancelarDemo(this.id), undefined, { auth: true });

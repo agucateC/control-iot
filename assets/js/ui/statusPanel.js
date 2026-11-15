@@ -11,7 +11,7 @@ export class StatusPanel {
     this.ws = root.getElementById('ind-ws');
     this.api = root.getElementById('ind-api');
     this.rds = root.getElementById('ind-rds');
-    this.event = root.getElementById('event-line');
+    this.event = root.getElementById('mon-event-line');
   }
 
   #apply(node, state, [text, mark], title) {

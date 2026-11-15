@@ -50,6 +50,7 @@ export const CONFIG = Object.freeze({
     salud: '/salud',
     saludRds: '/salud/rds',
     ws: (id) => `/ws/vehiculos/${id}`,
+    instrucciones: (id) => `/vehiculos/${id}/ia/instrucciones`,
   }),
 
   /** MONITOREO. El backend devuelve ya los 10 más recientes (GET /historial) y MySQL entrega fechas sin zona. */
@@ -58,6 +59,22 @@ export const CONFIG = Object.freeze({
   SERVER_NAIVE_IS_UTC: true,                 // fecha_hora / fecha_actualizacion sin zona = UTC (ver docs/MONITOREO.md)
   HISTORY_RETRY_MS: [500, 1500],             // reintentos acotados si el evento WSS aún no aparece en el historial
   CLOCK_SKEW_WARN_MS: 5 * 60 * 1000,         // aviso si la hora de BD y la del evento difieren más que esto
+
+  /** IA: voz (Web Speech API del navegador → POST /ia/instrucciones) y señas con la mano (MediaPipe en el navegador). */
+  VOICE_LANG: 'es-MX',
+  VOICE_REQUEST_TIMEOUT_MS: 25000,           // la IA tarda más que un movimiento normal
+  GESTURES: Object.freeze({
+    MEDIAPIPE_MODULE: 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs',
+    MEDIAPIPE_WASM: 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm',
+    MODEL_URL: 'https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task',
+    MIN_SCORE: 0.6,        // confianza mínima de MediaPipe
+    FRAME_MS: 100,         // ≈10 fotogramas por segundo
+    STABLE_FRAMES: 3,      // una seña debe repetirse así de seguido para activarse
+    LOST_FRAMES: 5,        // sin mano (o seña distinta) tantos fotogramas → se suelta y el carro se DETIENE
+    /** Seña de MediaPipe → comando del catálogo ('DETENER' = parar). */
+    MAP: Object.freeze({ Pointing_Up: 'AVANZAR', Thumb_Down: 'RETROCEDER', Victory: 'GIRAR_IZQUIERDA', Thumb_Up: 'GIRAR_DERECHA', Open_Palm: 'DETENER', Closed_Fist: 'DETENER' }),
+    NAMES: Object.freeze({ Pointing_Up: '☝️ Avanzar', Thumb_Down: '👎 Retroceder', Victory: '✌️ Girar a la izquierda', Thumb_Up: '👍 Girar a la derecha', Open_Palm: '✋ Detener', Closed_Fist: '✊ Detener' }),
+  }),
 
   REQUEST_TIMEOUT_MS: 8000,
   MOVE_TIMEOUT_MS: 5000,

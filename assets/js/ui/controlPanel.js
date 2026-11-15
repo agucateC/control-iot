@@ -1,4 +1,6 @@
 import { el, icon, setText } from '../utils/dom.js';
+import { humanize } from '../domain/catalog.js';
+import { toast } from './toast.js';
 
 /**
  * Vista + eventos de los botones del catálogo, joystick y DETENER.
@@ -6,22 +8,28 @@ import { el, icon, setText } from '../utils/dom.js';
  * Estados de botón: normal, pressed, sending, accepted, error, disabled.
  */
 export class ControlPanel {
-  #cmd; #joystick; #extrasRoot; #stopBtn; #buttons = new Map(); #catalog = null; #lock = { owner: null, demo: false };
-  #logBox; #logMain; #logEvidence; #isActive;
+  #cmd; #joystick; #lever; #extrasRoot; #stopBtn; #buttons = new Map(); #catalog = null; #lock = { owner: null, demo: false };
+  #logBox; #logMain; #isActive; #nowTimer = 0;
 
-  constructor({ commandController, joystick, root = document, isActive = () => true }) {
-    this.#cmd = commandController; this.#joystick = joystick; this.#isActive = isActive;
+  constructor({ commandController, joystick, lever, root = document, isActive = () => true }) {
+    this.#cmd = commandController; this.#joystick = joystick; this.#lever = lever; this.#isActive = isActive;
     this.#extrasRoot = root.getElementById('extras');
     this.#stopBtn = root.getElementById('btn-stop');
     this.#logBox = root.getElementById('action-log');
     this.#logMain = root.getElementById('log-main');
-    this.#logEvidence = root.getElementById('log-evidence');
 
     // Joystick → controlador
     joystick.on('direction', (dir) => {
       if (!dir) { this.#cmd.release('joystick'); return; }
       const key = { up: 'AVANZAR', down: 'RETROCEDER', left: 'GIRAR_IZQUIERDA', right: 'GIRAR_DERECHA' }[dir];
       if (!this.#cmd.press(key, 'joystick')) joystick.forceNeutral();
+    });
+
+    // Palanca de la garra (solo vertical) → controlador. Misma regla que el joystick: al soltar, DETENER.
+    lever.on('direction', (dir) => {
+      if (!dir) { this.#cmd.release('lever'); return; }
+      const key = { up: 'SUBIR_BRAZO', down: 'BAJAR_BRAZO' }[dir];
+      if (!this.#cmd.press(key, 'lever')) lever.forceNeutral();
     });
 
     // DETENER: pointerdown (respuesta inmediata) + teclado/click para accesibilidad
@@ -31,32 +39,35 @@ export class ControlPanel {
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && this.#isActive()) this.#stop(); });
 
     this.#cmd.on('phase', ({ key, state }) => this.#phase(key, state));
-    this.#cmd.on('lock', (l) => { this.#lock = l; this.#syncDisabled(); });
-    this.#cmd.on('forceRelease', ({ owner }) => { if (owner === 'joystick') this.#joystick.forceNeutral(); });
+    this.#cmd.on('lock', (l) => { this.#demoNow(l.demo); this.#lock = l; this.#syncDisabled(); });
+    this.#cmd.on('forceRelease', ({ owner }) => { if (owner === 'joystick') this.#joystick.forceNeutral(); if (owner === 'lever') this.#lever.forceNeutral(); });
     this.#cmd.on('action', (a) => this.#log(a));
   }
 
   /** Al ocultar la vista CONTROL: suelta joystick y botones sostenidos (no envía nada si no había nada). */
-  suspend() { this.#joystick.forceNeutral(); this.#cmd.releaseAll(); }
+  suspend() { this.#joystick.forceNeutral(); this.#lever.forceNeutral(); this.#cmd.releaseAll(); }
 
   #stop() { if (!this.#stopBtn.disabled) this.#cmd.stop(); }
 
   setCatalog(catalog) {
     this.#catalog = catalog;
     this.#joystick.setAvailability(catalog);
-    this.#extrasRoot.replaceChildren();
+    this.#lever.setAvailability(catalog);
+    for (const b of this.#extrasRoot.querySelectorAll('[data-key]')) b.remove();      // los botones de IA (voz/señas) se conservan
     this.#buttons.clear();
-    const n = catalog.extras.length;
-    const cols = n <= 6 ? 3 : 4;                      // la cuadrícula se ajusta al número real de botones
-    this.#extrasRoot.style.setProperty('--cols', String(cols));
+    const built = [];
+    const n = catalog.extras.length + this.#extrasRoot.querySelectorAll('.ai-btn').length;
+    const cols = n <= 1 ? 1 : n <= 4 ? 2 : n <= 6 ? 3 : 4;      // la cuadrícula se ajusta al número real de botones
+    this.#extrasRoot.closest('.gamepad')?.style.setProperty('--cols', String(cols));   // también reparte el ancho con la palanca
     this.#extrasRoot.style.setProperty('--rows', String(Math.max(1, Math.ceil(n / cols))));
     for (const c of catalog.extras) {
       const b = el('button', { cls: 'cmd-btn', attrs: { type: 'button', 'data-key': c.key, 'data-state': 'idle', title: `${c.label} · ${c.nombre} (código ${c.codigo})`, 'aria-label': c.label },
         children: [icon(c.icon), el('span', { cls: 'lbl-l', text: c.short ?? c.label }), el('span', { cls: 'lbl-s', text: (c.short ?? c.label).split(' ')[0] })] });
       this.#bind(b, c);
-      this.#extrasRoot.append(b);
+      built.push(b);
       this.#buttons.set(c.key, b);
     }
+    this.#extrasRoot.prepend(...built);
     this.#stopBtn.title = catalog.stop ? `DETENER (código ${catalog.stop.codigo})` : 'Falta el comando DETENER en el catálogo';
     this.#syncDisabled();
   }
@@ -76,6 +87,7 @@ export class ControlPanel {
   }
 
   #phase(key, state) {
+    this.#lever.setPhase(key, state);
     const target = key === 'DETENER' ? this.#stopBtn : this.#buttons.get(key);
     if (!target) return;
     target.dataset.state = state;
@@ -88,16 +100,27 @@ export class ControlPanel {
     const ready = this.#cmd.ready;
     for (const [key, b] of this.#buttons) b.disabled = !ready || demo || Boolean(owner && owner !== `btn:${key}`);
     this.#joystick.setEnabled(ready && !demo && (!owner || owner === 'joystick'));
+    this.#lever.setEnabled(ready && !demo && (!owner || owner === 'lever'));
     this.#stopBtn.disabled = !ready || !this.#catalog?.stop;
     this.#stopBtn.setAttribute('aria-disabled', String(this.#stopBtn.disabled));
   }
 
-  #log({ kind, text, steps, detail }) {
-    this.#logBox.dataset.kind = kind;
-    setText(this.#logMain, text);
-    const parts = [];
-    if (steps) parts.push(`${steps.requested ? '✔' : '○'} Solicitado → ${steps.accepted ? '✔' : '○'} Aceptado por la API → ${steps.event ? '✔' : '○'} Evento WSS`);
-    if (detail) parts.push(detail);
-    setText(this.#logEvidence, parts.join(' · '));
+  /** Durante una DEMO el vehículo lo mueve el servidor: el cuadro lo dice; al terminar vuelve a «Detenido». */
+  #demoNow(running) {
+    if (running === this.#lock.demo) return;
+    clearTimeout(this.#nowTimer);
+    this.#logBox.dataset.kind = running ? 'moving' : 'idle';
+    setText(this.#logMain, running ? 'DEMO en ejecución' : 'Detenido');
+  }
+
+  /** CONTROL solo dice qué movimiento se está haciendo. Los errores salen como aviso; la evidencia técnica vive en MONITOREO. */
+  #log({ kind, text, detail, movement }) {
+    if (kind === 'error') { toast(`${text}${detail ? ` ${detail}` : ''}`.trim(), { error: true, ms: 4500 }); return; }
+    if (!movement) return;
+    clearTimeout(this.#nowTimer);
+    const label = movement.stop ? 'Detenido' : (this.#catalog?.get(movement.key)?.say ?? humanize(movement.key));
+    this.#logBox.dataset.kind = movement.stop ? 'idle' : 'moving';
+    setText(this.#logMain, label);
+    if (movement.mode === 'pulse') this.#nowTimer = setTimeout(() => { this.#logBox.dataset.kind = 'idle'; setText(this.#logMain, 'Listo'); }, 1800);   // acción puntual: termina sola
   }
 }

@@ -26,6 +26,8 @@
     <symbol id="i-360" viewBox="0 0 24 24"><path d="M12 4a8 8 0 1 0 8 8h-2a6 6 0 1 1-6-6v3l5-4-5-4z" fill="currentColor"/></symbol>
     <symbol id="i-arm-up" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h8M7 20v-4l7-7"/><path d="M18 16V4M14.5 7.5 18 4l3.5 3.5"/></g></symbol>
     <symbol id="i-arm-down" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h8M7 20v-4l7-7"/><path d="M18 4v12M14.5 12.5 18 16l3.5-3.5"/></g></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11z" fill="currentColor"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M7 11V6.5a1.5 1.5 0 0 1 3 0V10h1V4.5a1.5 1.5 0 0 1 3 0V10h1V5.5a1.5 1.5 0 0 1 3 0V12h.5V8.5a1.5 1.5 0 0 1 3 0V15a7 7 0 0 1-7 7h-1.2a6 6 0 0 1-4.6-2.2L3.6 15.4a1.5 1.5 0 0 1 2.3-1.9L7 14.8z" fill="currentColor"/></symbol>
     <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4zm12.5-1.5a6 6 0 0 1 0 9l-1.2-1.4a4 4 0 0 0 0-6.2z" fill="currentColor"/></symbol>
     <symbol id="i-stop" viewBox="0 0 24 24"><path d="M8.3 3h7.4L21 8.3v7.4L15.7 21H8.3L3 15.7V8.3z" fill="currentColor"/></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="currentColor"/></symbol>
@@ -127,7 +129,19 @@
       </section>
 
       <section class="zone zone-right" aria-label="Movimientos disponibles">
-        <div class="extras" id="extras" role="group" aria-label="Movimientos disponibles"></div>
+        <div class="right-cluster">
+          <div class="extras" id="extras" role="group" aria-label="Sonido y controles con IA">
+            <button type="button" class="cmd-btn ai-btn" id="btn-voice" data-state="idle" title="Comando de voz: di, por ejemplo, «anda hacia adelante»" aria-label="Comando de voz"><svg aria-hidden="true"><use href="#i-mic"/></svg><span class="lbl-l">Voz</span><span class="lbl-s">Voz</span></button>
+            <button type="button" class="cmd-btn ai-btn" id="btn-gesture" data-state="idle" aria-pressed="false" title="Control por señas con la cámara" aria-label="Control por señas con la cámara"><svg aria-hidden="true"><use href="#i-hand"/></svg><span class="lbl-l">Señas</span><span class="lbl-s">Señas</span></button>
+          </div>
+          <div class="lever" id="lever" role="application" tabindex="0" hidden
+               aria-label="Palanca de la garra. Flecha arriba sube, flecha abajo baja; al soltar se detiene.">
+            <span class="lv-end lv-up" data-dir="SUBIR_BRAZO"><svg aria-hidden="true"><use href="#i-arm-up"/></svg></span>
+            <span class="lv-slot" aria-hidden="true"></span>
+            <span class="lv-end lv-down" data-dir="BAJAR_BRAZO"><svg aria-hidden="true"><use href="#i-arm-down"/></svg></span>
+            <span class="lv-knob" id="lever-knob" aria-hidden="true"></span>
+          </div>
+        </div>
       </section>
     </div>
   </main>
@@ -153,6 +167,13 @@
           <li id="mon-ev-rds" data-state="na"><span class="ev-name">RDS</span><span class="ev-val" data-role="val">—</span></li>
           <li id="mon-ev-phys" data-state="na"><span class="ev-name">Vehículo</span><span class="ev-val" data-role="val">Ejecución física sin verificar</span></li>
         </ul>
+        <p class="mon-event-line" id="mon-event-line">Sin eventos WSS todavía.</p>
+        <details class="mon-activity" id="mon-activity">
+          <summary>Último comando enviado desde esta pestaña</summary>
+          <p id="mon-action-text">Ninguno todavía.</p>
+          <p id="mon-action-steps"></p>
+          <p id="mon-action-detail"></p>
+        </details>
       </section>
       <section class="mon-table-box" aria-labelledby="mon-table-title">
         <h3 class="mon-table-title" id="mon-table-title">Últimos 10 movimientos</h3>
@@ -169,16 +190,21 @@
     </div>
   </main>
 
-  <div class="action-log" id="action-log" role="status" aria-live="polite" data-kind="idle">
-    <span class="log-main" id="log-main">Cargando catálogo…</span>
-    <span class="log-evidence" id="log-evidence"></span>
-    <span class="event-line" id="event-line">Sin eventos WSS todavía.</span>
+  <div class="action-log" id="action-log" role="status" aria-live="polite" aria-atomic="true" data-kind="idle">
+    <span class="log-label">Movimiento</span>
+    <strong class="log-main" id="log-main">Cargando…</strong>
   </div>
 
   <footer class="app-footer">
     <p class="credit-line">© <span data-credit="year">2026</span> <span id="credits-app">Control IoT</span>. Todos los derechos reservados.</p>
     <p class="credit-line" id="credits">Desarrollado por <a id="credits-name" href="https://github.com/agucateC" target="_blank" rel="noopener noreferrer">Carlos Omar Cruz Ramos</a> · <span id="credits-year" data-credit="year">2026</span></p>
   </footer>
+</div>
+
+<div class="cam-panel d-none" id="cam-panel" role="region" aria-label="Control por señas">
+  <video id="cam-video" playsinline muted></video>
+  <span class="cam-label" id="cam-label" aria-live="polite">Cargando…</span>
+  <button type="button" class="cam-close" id="cam-close" aria-label="Apagar cámara">✕</button>
 </div>
 
 <dialog id="about-box" class="dlg" aria-labelledby="about-title">
@@ -192,7 +218,8 @@
     </ul>
     <p class="dlg-text">Ninguno confirma que el <strong>vehículo físico</strong> esté en línea, ni que ejecutó un movimiento: «Aceptado por la API» y «Evento WSS» solo prueban el mensaje.</p>
     <p class="dlg-text">MONITOREO muestra el último movimiento y los 10 últimos movimientos individuales guardados en RDS (las DEMO no se guardan en el historial).</p>
-    <p class="dlg-text mb-2">Teclado: flechas/WASD mueven el joystick; <kbd>Esc</kbd> detiene.</p>
+    <p class="dlg-text mb-2">Voz: toca <strong>Voz</strong> y di una orden («por favor, anda hacia adelante»); la IA la convierte en movimientos. Señas: toca <strong>Señas</strong> y muestra la mano a la cámara — ☝️ avanza, 👎 retrocede, ✌️ gira a la izquierda, 👍 gira a la derecha, ✋ o ✊ detienen. Si la mano desaparece, el carro se detiene. El video se procesa en tu navegador y no se envía a ningún servidor.</p>
+    <p class="dlg-text mb-2">Teclado: flechas/WASD mueven el joystick; con la palanca enfocada, <kbd>↑</kbd>/<kbd>↓</kbd> suben y bajan la garra; <kbd>Esc</kbd> detiene.</p>
     <button class="btn btn-danger w-100" value="ok">Cerrar</button>
   </form>
 </dialog>

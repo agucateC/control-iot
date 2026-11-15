@@ -136,7 +136,7 @@ export class CommandController extends Emitter {
     if (!isStop && cmd.id_comando === this.#lastId && this.#active) { this.#setPhase(key, this.#owner ? 'pressed' : 'idle'); return; } // duplicado
 
     this.#setPhase(key, 'sending');
-    this.emit('action', { kind: 'busy', text: `Enviando ${cmd.label}…`, steps: { requested: true, accepted: false, event: false }, detail: '' });
+    this.emit('action', { kind: 'busy', movement: { key, stop: isStop, mode: cmd.mode }, text: `Enviando ${cmd.label}…`, steps: { requested: true, accepted: false, event: false }, detail: '' });
     const tries = isStop ? STOP_RETRIES : [0];
     let lastErr = null;
     for (const wait of tries) {
@@ -146,7 +146,7 @@ export class CommandController extends Emitter {
         this.#lastId = cmd.id_comando;
         this.#active = !isStop;
         this.#setPhase(key, 'accepted', 700);
-        this.emit('action', { kind: 'ok', text: `${cmd.label} aceptado por la API (código ${res.codigo}).`,
+        this.emit('action', { kind: 'ok', movement: { key, stop: isStop, mode: cmd.mode }, text: `${cmd.label} aceptado por la API (código ${res.codigo}).`,
           steps: { requested: true, accepted: true, event: false }, detail: this.#isWsOpen() ? 'Esperando evento por WebSocket…' : 'WebSocket sin conexión: no habrá evento.' });
         this.#track(res, cmd);          // después de 'aceptado': si el evento WSS ya llegó, lo confirma de inmediato
         return;

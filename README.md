@@ -115,3 +115,15 @@ docs: README, contrato, pruebas, seguridad y publicación
 ```
 
 Más detalles: `docs/ARQUITECTURA.md`, `docs/CONTRATO_API.md`, `docs/PRUEBAS.md`, `docs/SEGURIDAD.md`, `docs/PUBLICACION.md`, `docs/CHECKLIST.md`.
+
+## v1.4.0 — Cambios de interfaz
+- Fondo totalmente negro; el rojo del control resalta.
+- Encabezado y aviso de error con estilo *liquid glass* (variable `--glass-rgb` al final de `assets/css/styles.css`; `70, 140, 255` lo vuelve azul).
+- Subir/bajar garra ahora es una **palanca** de un solo eje (`assets/js/ui/lever.js`): arrastra arriba = subir, abajo = bajar, al soltar vuelve al centro y envía DETENER.
+- Los nombres de movimientos se muestran legibles («Girar a la derecha»), sin guiones bajos, en el cuadro de CONTROL y en MONITOREO.
+
+## v1.5.0 — IA: voz y señas
+- Quedan solo el botón **Sonido** y dos nuevos: **Voz** y **Señas** (los giros de 90°/360° ya no tienen botón; siguen existiendo en la API).
+- **Voz**: el navegador convierte tu voz a texto (Web Speech API, `es-MX`; Chrome, Edge o Safari, con HTTPS) y lo envía a `POST /vehiculos/{id}/ia/instrucciones`. La IA del servidor lo traduce a movimientos y los ejecuta como una DEMO (se cancela con DETENER). Requiere `OPENAI_API_KEY` en el `.env` del servidor.
+- **Señas**: cámara + MediaPipe (en el navegador; el video no se envía). ☝️ avanzar · 👎 retroceder · ✌️ girar izquierda · 👍 girar derecha · ✋/✊ detener. Si la mano desaparece, el carro se detiene. Ajustes en `CONFIG.GESTURES` (`assets/js/config.js`). Necesita internet para cargar el modelo (jsDelivr y Google Storage).
+- Pruebas: `e2e_ai.cjs` (micrófono y cámara simulados).

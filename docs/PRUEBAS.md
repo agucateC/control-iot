@@ -21,7 +21,7 @@ Prerrequisitos: API en AWS con v1.1 (o la anterior), `CORS_ORIGINS` con tu orige
 ## C. Botones y DETENER
 | # | Acción | Resultado esperado |
 |---|---|---|
-| C1 | Mantener «Subir brazo»; soltar | POST subir brazo; al soltar `DETENER` |
+| C1 | Arrastrar la palanca de la garra hacia arriba y soltar | POST subir brazo; al soltar `DETENER` y la perilla vuelve al centro (abajo: bajar brazo) |
 | C2 | Mientras se mantiene, tocar otro botón/joystick | Están deshabilitados (un solo comando activo) |
 | C3 | «90° izq.» | **Una** solicitud (acción puntual); botón «Enviando…» → verde |
 | C4 | DETENER mientras algo está en vuelo/pendiente | `DETENER` es lo último que se envía; el movimiento pendiente se descarta |

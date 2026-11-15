@@ -68,13 +68,15 @@ segundos), máximo 10. El DOM se reconcilia por `data-id`: se crean solo las fil
 
 **Hora.** MySQL entrega fechas sin zona; se interpretan como **UTC** (`SERVER_NAIVE_IS_UTC`) y se muestran en **America/Mexico_City** (`DISPLAY_TIME_ZONE`), con la zona rotulada (GMT-6). Si la hora de la BD difiere >5 min de la del evento WSS que acaba de persistirse, la tarjeta lo avisa.
 
+**Cuadro «Movimiento» de CONTROL.** CONTROL muestra solo qué movimiento se está haciendo («Avanzar», «Girar a la derecha», «Detenido», «DEMO en ejecución»); los errores salen como aviso temporal. La evidencia técnica (Solicitado → Aceptado por la API → Evento WSS, y el último evento WSS) se movió a la tarjeta de MONITOREO.
+
 **Indicadores.** Los tres siguen en el encabezado en ambas vistas, con sus fuentes independientes (sesión WSS · `/salud` · `/salud/rds`).
 
 ## 4. Local y GitHub Pages
 Igual que CONTROL: `python -m http.server 8081` en la carpeta; en Pages las rutas son relativas y la navegación usa hash (`#/monitoreo`), sin configuración extra. URL directa: `https://<usuario>.github.io/<repo>/#/monitoreo`. Asegura `CORS_ORIGINS=https://<usuario>.github.io` en el `.env` del backend.
 
 ## 5. Casos de prueba
-`api/e2e/e2e_monitoreo.cjs` (76 comprobaciones, navegador real Chromium + API real FastAPI sobre BD simulada + cliente `ws` independiente) y `e2e.cjs` (CONTROL, 48+).
+`api/e2e/e2e_monitoreo.cjs` (80 comprobaciones, navegador real Chromium + API real FastAPI sobre BD simulada + cliente `ws` independiente) y `e2e.cjs` (CONTROL, 48+).
 
 | # | Caso | Tipo | Evidencia |
 |---|---|---|---|
