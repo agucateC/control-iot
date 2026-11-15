@@ -80,7 +80,7 @@ class App {
       if (api === 'up' && !this.loaded) this.loadVehicle();   // se recupera sola cuando la API vuelve
       if (api === 'up') this.monitor.onApiRecovered();
     });
-    this.demo.on('change', (s) => { this.commands.setDemoRunning(s.running); this.voice.setBusy(s.running); this.gestures.setBusy(s.running); });
+    this.demo.on('change', (s) => { this.commands.setDemoRunning(s.running); this.voice.setBusy(s.running); this.gestures.setBusy(s.running); this.controlPanel.demoStep(s.comando); });
     this.commands.on('action', (a) => this.monitor.setAction(a));      // evidencia técnica → MONITOREO
     this.commands.on('demoStop', () => this.demoPanel.cancelDemo());   // DETENER durante DEMO = cancelar
 

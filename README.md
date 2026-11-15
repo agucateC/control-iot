@@ -133,3 +133,8 @@ Más detalles: `docs/ARQUITECTURA.md`, `docs/CONTRATO_API.md`, `docs/PRUEBAS.md`
 - Barra **MOVIMIENTO** centrada y en vidrio; joystick con el mismo diseño de la palanca; palanca más grande y sin iconos.
 - **Sonido, Voz y Señas** solo con icono, en triángulo. **Sonido** es un interruptor: 1.er toque envía SONIDO y se ilumina; el 2.º envía DETENER y se apaga (DETENER general también lo apaga).
 - **DETENER** octagonal y **DEMO** en tarjeta de vidrio; se quitó el botón ✕ (DETENER cancela la DEMO).
+
+## v1.6.1 — DEMO más simple
+- La DEMO es una píldora (selector + botón ▶). El ▶ se ilumina con la misma animación que Voz/Sonido/Señas mientras corre y se apaga al terminar.
+- Los pasos de la DEMO aparecen en el letrero **MOVIMIENTO**; solo salen dos letreros de 4 s: «Demo iniciada» y «Demo finalizada» (o «cancelada» / error).
+- Iconos de Sonido/Voz/Señas centrados. Los letreros (toasts) ahora son píldoras de vidrio.

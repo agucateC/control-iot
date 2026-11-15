@@ -8,9 +8,9 @@ import { ApiError, friendlyMessage } from '../utils/errors.js';
  * Emite 'change' con { demos, selected, running, starting, cancelling, idDemo, progress, message, kind }.
  */
 export class DemoController extends Emitter {
-  #service; #resyncTimer = 0;
+  #service; #resyncTimer = 0; #gen = 0;
   state = { demos: [], selected: null, running: false, starting: false, cancelling: false,
-    idDemo: null, orden: 0, total: 0, message: 'Sin DEMO en ejecución.', kind: 'idle' };
+    idDemo: null, orden: 0, total: 0, comando: '', outcome: '', message: 'Sin DEMO en ejecución.', kind: 'idle' };
 
   constructor(service) { super(); this.#service = service; }
 
@@ -30,7 +30,7 @@ export class DemoController extends Emitter {
     this.#set({ starting: true, message: 'Solicitando inicio de la DEMO…', kind: 'busy' });
     try {
       const r = await this.#service.startDemo(s.selected);
-      this.#set({ starting: false, running: true, idDemo: s.selected, orden: 0, total: r.total,
+      this.#set({ starting: false, running: true, idDemo: s.selected, orden: 0, total: r.total, comando: '', outcome: '',
         message: `DEMO aceptada por la API (${r.total} movimientos). Esperando eventos…`, kind: 'busy' });
       this.#scheduleResync();
     } catch (e) {
@@ -59,27 +59,30 @@ export class DemoController extends Emitter {
   onSocketEvent(ev) {
     switch (ev.evento) {
       case 'demo_inicio':
-        this.#set({ running: true, starting: false, idDemo: ev.idDemo, orden: 0, total: ev.total ?? 0, message: 'DEMO iniciada.', kind: 'busy' });
+        this.#set({ running: true, starting: false, idDemo: ev.idDemo, orden: 0, total: ev.total ?? 0, comando: '', outcome: '', message: 'DEMO iniciada.', kind: 'busy' });
         this.#scheduleResync(); break;
       case 'demo_movimiento':
-        this.#set({ running: true, idDemo: ev.idDemo ?? this.state.idDemo, orden: ev.orden ?? 0, total: ev.total ?? this.state.total,
+        this.#set({ running: true, idDemo: ev.idDemo ?? this.state.idDemo, orden: ev.orden ?? 0, total: ev.total ?? this.state.total, comando: String(ev.comando ?? ''),
           message: `Paso ${ev.orden ?? '?'} de ${ev.total ?? '?'}: ${ev.comando ?? '—'}${ev.duracionMs ? ` (${ev.duracionMs} ms)` : ''}`, kind: 'busy' }); break;
-      case 'demo_fin': this.#end('DEMO finalizada.', 'ok'); break;
-      case 'demo_cancelada': this.#end('DEMO cancelada. El vehículo quedó en DETENER.', 'ok'); break;
-      case 'demo_error': this.#end(`La DEMO terminó con error. ${ev.detalle ?? ''}`.trim(), 'error'); break;
+      case 'demo_fin': this.#end('DEMO finalizada.', 'ok', 'fin'); break;
+      case 'demo_cancelada': this.#end('DEMO cancelada. El vehículo quedó en DETENER.', 'ok', 'cancelada'); break;
+      case 'demo_error': this.#end(`La DEMO terminó con error. ${ev.detalle ?? ''}`.trim(), 'error', 'error'); break;
       default: break;
     }
   }
 
-  #end(message, kind) {
+  #end(message, kind, outcome = 'fin') {
+    this.#gen++;                                       // invalida cualquier consulta (resync) que siga en vuelo
     clearTimeout(this.#resyncTimer);
-    this.#set({ running: false, starting: false, cancelling: false, orden: 0, total: 0, idDemo: null, message, kind });
+    this.#set({ running: false, starting: false, cancelling: false, orden: 0, total: 0, idDemo: null, comando: '', outcome, message, kind });
   }
 
   /** Consulta GET ejecucion-demo: recupera el estado tras recargar la página o perder eventos. */
   async resync() {
+    const gen = this.#gen;
     try {
       const r = await this.#service.getDemoExecution();
+      if (gen !== this.#gen) return;                   // la DEMO terminó mientras se consultaba: la respuesta ya es vieja
       if (r.running && !this.state.running) this.#set({ running: true, idDemo: r.idDemo, total: r.total, message: 'Hay una DEMO en ejecución en el servidor.', kind: 'busy' });
       if (!r.running && this.state.running) this.#end('DEMO finalizada.', 'ok');
     } catch { /* sin red: se reintenta en el siguiente ciclo */ }

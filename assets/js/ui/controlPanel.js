@@ -1,5 +1,5 @@
 import { el, icon, setText } from '../utils/dom.js';
-import { humanize } from '../domain/catalog.js';
+import { humanize, movementName } from '../domain/catalog.js';
 import { toast } from './toast.js';
 
 /**
@@ -125,6 +125,14 @@ export class ControlPanel {
     clearTimeout(this.#nowTimer);
     this.#logBox.dataset.kind = running ? 'moving' : 'idle';
     setText(this.#logMain, running ? 'DEMO en ejecución' : 'Detenido');
+  }
+
+  /** Cada paso de la DEMO (evento WSS) se muestra en el letrero de MOVIMIENTO. */
+  demoStep(comando) {
+    if (!this.#lock.demo || !comando) return;
+    const name = movementName(comando);
+    this.#logBox.dataset.kind = name === 'Detener' ? 'idle' : 'moving';
+    setText(this.#logMain, name === 'Detener' ? 'Detenido' : name);
   }
 
   /** CONTROL solo dice qué movimiento se está haciendo. Los errores salen como aviso; la evidencia técnica vive en MONITOREO. */

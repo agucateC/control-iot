@@ -1,8 +1,9 @@
 import { el, setText } from '../utils/dom.js';
+import { toast } from './toast.js';
 
 /** Vista del selector y la ejecución de DEMO (la clave de API la agrega ApiClient desde CONFIG). */
 export class DemoPanel {
-  #demo;
+  #demo; #wasRunning = false; #wasStarting = false;
   constructor({ demoController, root = document }) {
     this.#demo = demoController;
     this.select = root.getElementById('demo-select');
@@ -19,6 +20,16 @@ export class DemoPanel {
   /** DETENER durante una DEMO: cancela con prioridad. */
   cancelDemo() { this.#demo.cancel(); }
 
+  /** Solo dos letreros de 4 s: «Demo iniciada» y «Demo finalizada» (o cancelada / con error). El avance se ve en MOVIMIENTO. */
+  #notify(s) {
+    if (s.running && !this.#wasRunning) { if (this.#wasStarting || s.message === 'DEMO iniciada.') toast('Demo iniciada', { ms: 4000 }); }
+    else if (!s.running && this.#wasRunning) {
+      if (s.outcome === 'error') toast(s.message, { error: true, ms: 4000 });
+      else toast(s.outcome === 'cancelada' ? 'Demo cancelada' : 'Demo finalizada', { ms: 4000 });
+    }
+    this.#wasRunning = s.running; this.#wasStarting = s.starting;
+  }
+
   render(s) {
     const prev = this.select.value;
     if (this.select.dataset.sig !== JSON.stringify(s.demos)) {
@@ -32,6 +43,8 @@ export class DemoPanel {
     this.select.disabled = busy || !s.demos.length;
     this.start.disabled = busy || !s.selected;
     this.start.dataset.state = s.starting ? 'sending' : 'idle';
+    this.start.dataset.running = String(busy);       // mismo efecto que Voz/Sonido/Señas mientras la DEMO corre; se apaga al terminar
+    this.#notify(s);
     setText(this.status, s.message);
     this.status.dataset.kind = s.kind;
     const pct = s.total ? Math.round((s.orden / s.total) * 100) : 0;
