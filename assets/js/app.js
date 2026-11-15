@@ -14,6 +14,7 @@ import { Joystick } from './ui/joystick.js';
 import { Lever } from './ui/lever.js';
 import { VoiceControl } from './ui/voiceControl.js';
 import { GestureControl } from './ui/gestureControl.js';
+import { FullscreenControl } from './ui/fullscreenControl.js';
 import { LastMovement } from './state/lastMovement.js';
 import { HistoryStore } from './state/history.js';
 import { MonitorView } from './ui/monitorView.js';
@@ -88,6 +89,8 @@ class App {
       if (to === 'monitoreo') this.monitor.activate(); else this.monitor.deactivate();
     });
     this.status.setWs('connecting'); this.status.setApi('checking'); this.status.setRds('unverified');
+    new FullscreenControl(document.getElementById('btn-fullscreen'));
+    if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});   // necesario para poder «instalar» la app
     this.socket.start();
     this.health.start();
     this.router.start();

@@ -331,5 +331,74 @@ html[data-view="monitoreo"] .action-log { display: none; }
 .cam-close { position: absolute; top: 4px; right: 4px; width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(255,255,255,.5); background: rgba(0,0,0,.65); color: #fff; pointer-events: auto; line-height: 1; padding: 0; }
 @media (orientation: landscape) and (max-height: 600px) { .cam-panel { top: auto; left: auto; right: .8rem; transform: none; bottom: calc(var(--safe-b, 0px) + 4.6rem); width: clamp(110px, 20vw, 170px); } }
 .ai-btn span { line-height: 1.35; }   /* que no recorte la tilde de «Señas» */
-/* 3 botones (sonido, voz, señas): en vertical van en una fila; en horizontal se quedan 2×2 para no invadir el selector de DEMO */
-@container pad (max-aspect-ratio: 5/4) { .extras:has(> :nth-child(3):last-child) { --cols: 3; --rows: 1; grid-template-columns: repeat(3, 1fr); } }
+
+/* ===== v1.6: encabezado con pantalla completa, controles en estilo «palanca», DETENER y DEMO nuevos ===== */
+.hdr-actions { grid-area: info; display: flex; align-items: center; gap: .35rem; }
+.hdr-actions .icon-btn[hidden] { display: none; }
+
+/* Barra de MOVIMIENTO: centrada y de vidrio */
+.action-log { width: min(440px, calc(100% - 1rem)); margin: 0 auto; border: 1px solid rgba(255,255,255,.24); border-radius: 999px;
+  background: linear-gradient(135deg, rgba(var(--glass-rgb), .36) 0%, rgba(var(--glass-rgb), .10) 50%, rgba(var(--glass-rgb), .26) 100%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%) brightness(1.1); backdrop-filter: blur(20px) saturate(190%) brightness(1.1);
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,.45), inset 0 -1.5px 0 rgba(0,0,0,.45), 0 8px 22px rgba(0,0,0,.6); }
+.action-log[data-kind="moving"] { border-color: rgba(255,210,190,.65); background: linear-gradient(135deg, rgba(var(--glass-rgb), .62), rgba(var(--glass-rgb), .22) 55%, rgba(var(--glass-rgb), .45));
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,.55), inset 0 -1.5px 0 rgba(0,0,0,.4), 0 8px 22px rgba(0,0,0,.6), 0 0 26px rgba(var(--glass-rgb), .6); }
+
+/* Joystick con el mismo diseño de la palanca */
+.ring { background: radial-gradient(120% 60% at 50% 0%, #2c0b08 0%, #0b0302 70%, #000 100%); border: 3px solid var(--r3); box-shadow: inset 0 0 14px #000, 0 0 16px rgba(221,48,34,.38); }
+.joystick { background: radial-gradient(circle, #000 0%, #120403 58%, #1d0705 100%); border: 0; box-shadow: inset 0 3px 10px #000, 0 0 0 1px #4a140d; }
+.js-knob { width: 38%; height: 38%; margin: -19% 0 0 -19%; background: radial-gradient(circle at 36% 28%, #ffa27d 0%, var(--r4) 38%, var(--r1) 100%); border: 3px solid #ffd2c4;
+  box-shadow: 0 5px 10px rgba(0,0,0,.8), inset 0 -5px 9px rgba(0,0,0,.38), inset 0 3px 5px rgba(255,255,255,.35), 0 0 14px rgba(236,78,41,.6); }
+.js-knob::before { content: ""; position: absolute; inset: 11%; border-radius: 50%; background: repeating-radial-gradient(circle, rgba(0,0,0,.30) 0 1.5px, transparent 1.5px 4px); opacity: .8; }
+.js-knob::after { content: ""; position: absolute; inset: 33%; border-radius: 50%; background: radial-gradient(circle at 50% 38%, #5b190f, #260704 72%); box-shadow: inset 0 2px 4px rgba(0,0,0,.7), 0 1px 0 rgba(255,255,255,.35); }
+
+/* Palanca más grande y sin iconos; botones pequeños (solo icono) en triángulo */
+.right-cluster { --rowH: clamp(104px, 19cqh, 150px); --tb: calc(var(--rowH) * .5); --lw: calc(var(--rowH) * .56); --btn: var(--tb); gap: clamp(10px, 2.6cqh, 20px); }
+.lever { width: var(--lw); height: var(--rowH); }
+.lv-end { display: none; }
+.lv-slot { inset: 7% 33%; }
+.right-cluster .extras .cmd-btn span { display: none; }
+.right-cluster .extras .cmd-btn { border-width: 2px; }
+.right-cluster .extras .cmd-btn svg { width: 54%; height: 54%; }
+.right-cluster .extras:has(> :nth-child(3):last-child) { --rows: 2; display: grid; grid-template-columns: repeat(4, calc(var(--tb) * .55)); grid-template-rows: repeat(2, var(--tb)); gap: 0; width: auto; height: auto; justify-items: center; align-content: center; padding: 0; }
+.right-cluster .extras:has(> :nth-child(3):last-child) > #btn-voice { grid-column: 2 / 4; grid-row: 1; }
+.right-cluster .extras:has(> :nth-child(3):last-child) > :first-child { grid-column: 1 / 3; grid-row: 2; margin-top: calc(var(--tb) * -.05); }
+.right-cluster .extras:has(> :nth-child(3):last-child) > #btn-gesture { grid-column: 3 / 5; grid-row: 2; margin-top: calc(var(--tb) * -.05); }
+@container pad (min-aspect-ratio: 5/4) { .right-cluster { --rowH: calc(var(--ph) * .62); --tb: calc(var(--ph) * .215); --lw: calc(var(--ph) * .2); gap: calc(var(--ph) * .035); } }
+
+/* Interruptor de sonido: mismo efecto que Voz/Señas cuando está activo */
+.cmd-btn[data-on="true"] { background: radial-gradient(circle at 35% 28%, var(--r4), var(--r2) 70%); border-color: #ffd2c4; box-shadow: 0 0 0 0 rgba(255,120,90,.7), 0 0 20px var(--r4); animation: ai-ring 1.2s infinite; }
+.cmd-btn[data-on="true"] svg { color: #fff; }
+@media (prefers-reduced-motion: reduce) { .cmd-btn[data-on="true"] { animation: none; } }
+
+/* DETENER: octágono (señal de alto) con bisel */
+.stop-wrap { width: 100%; filter: drop-shadow(0 6px 8px rgba(0,0,0,.7)) drop-shadow(0 0 14px rgba(236,78,41,.55)); }
+.btn-stop { --c: 15px; --oct: polygon(var(--c) 0, calc(100% - var(--c)) 0, 100% var(--c), 100% calc(100% - var(--c)), calc(100% - var(--c)) 100%, var(--c) 100%, 0 calc(100% - var(--c)), 0 var(--c));
+  position: relative; isolation: isolate; border: 0; border-radius: 0; box-shadow: none; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,.65); letter-spacing: 2px;
+  background: linear-gradient(180deg, #ffd6c8, #ff6b4a 38%, #a31208); clip-path: var(--oct); }
+.btn-stop::before, .btn-stop::after { content: ""; position: absolute; inset: 4px; z-index: -1; clip-path: var(--oct); pointer-events: none; }
+.btn-stop::before { background: linear-gradient(165deg, #ff5535 0%, #c4160d 52%, #6f0a05 100%); }
+.btn-stop::after { background: linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,0) 48%); }
+.btn-stop:active:not(:disabled) { transform: translateY(2px) scale(.985); box-shadow: none; }
+.btn-stop:disabled { opacity: .5; filter: grayscale(.35); }
+@container pad (min-aspect-ratio: 5/4) { .stop-wrap { width: auto; } .btn-stop { --c: calc(var(--sd) * .293); } }
+
+/* DEMO: tarjeta de vidrio, selector en píldora y botón de ejecutar */
+.demo-box { padding: .45rem .5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,.22);
+  background: linear-gradient(135deg, rgba(var(--glass-rgb), .28) 0%, rgba(var(--glass-rgb), .08) 55%, rgba(var(--glass-rgb), .18) 100%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%); backdrop-filter: blur(18px) saturate(180%);
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,.4), inset 0 -1.5px 0 rgba(0,0,0,.45), 0 6px 18px rgba(0,0,0,.5); }
+.demo-box .form-select { border-radius: 999px; border: 1px solid rgba(255,255,255,.22); background-color: rgba(0,0,0,.5); padding-inline: .85rem 2rem; font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 2px 6px rgba(0,0,0,.6);
+  --bs-form-select-bg-img: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23ff6a4a' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' d='m3 6 5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right .75rem center; background-size: 14px; }
+.round-btn.start { width: 56px; border-radius: 999px; border: 1px solid rgba(255,255,255,.55); background: linear-gradient(180deg, #ff7a55, #c4160d);
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.3), 0 0 14px rgba(236,78,41,.5); }
+.round-btn.start:active:not(:disabled) { transform: translateY(2px); }
+.demo-status { text-align: center; }
+.demo-progress { height: 6px; border-radius: 99px; overflow: hidden; background: rgba(0,0,0,.5); }
+.demo-progress .progress-bar { background: linear-gradient(90deg, #ff6a4a, #ffd2c4); }
+.right-cluster .extras:has(> :nth-child(3):last-child) > .cmd-btn { width: var(--tb); height: var(--tb); max-width: none; aspect-ratio: auto; }
+@media (max-height: 440px) { .hdr-actions { gap: .2rem; } .hdr-actions .icon-btn { width: 34px; height: 34px; } .hdr-actions .icon-btn svg { width: 1.1rem; height: 1.1rem; } }
+@media (max-height: 440px) and (max-width: 640px) { #btn-fullscreen { display: none; } }
+@container pad (min-aspect-ratio: 5/4) { .demo-status[data-kind="idle"] { display: none; } }

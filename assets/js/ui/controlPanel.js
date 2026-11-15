@@ -61,7 +61,7 @@ export class ControlPanel {
     this.#extrasRoot.closest('.gamepad')?.style.setProperty('--cols', String(cols));   // también reparte el ancho con la palanca
     this.#extrasRoot.style.setProperty('--rows', String(Math.max(1, Math.ceil(n / cols))));
     for (const c of catalog.extras) {
-      const b = el('button', { cls: 'cmd-btn', attrs: { type: 'button', 'data-key': c.key, 'data-state': 'idle', title: `${c.label} · ${c.nombre} (código ${c.codigo})`, 'aria-label': c.label },
+      const b = el('button', { cls: 'cmd-btn', attrs: { type: 'button', 'data-key': c.key, 'data-state': 'idle', ...(c.key === 'SONIDO' ? { 'data-on': 'false', 'aria-pressed': 'false' } : {}), title: `${c.label} · ${c.nombre} (código ${c.codigo})`, 'aria-label': c.label },
         children: [icon(c.icon), el('span', { cls: 'lbl-l', text: c.short ?? c.label }), el('span', { cls: 'lbl-s', text: (c.short ?? c.label).split(' ')[0] })] });
       this.#bind(b, c);
       built.push(b);
@@ -81,17 +81,30 @@ export class ControlPanel {
       btn.addEventListener('keyup', (e) => { if (e.key === ' ' || e.key === 'Enter') this.#cmd.release(owner); });
       btn.addEventListener('blur', () => this.#cmd.release(owner));
       btn.addEventListener('contextmenu', (e) => e.preventDefault());
+    } else if (c.key === 'SONIDO') {
+      btn.addEventListener('click', () => {      // interruptor: 1.er toque activa el sonido, el 2.º lo detiene
+        if (btn.disabled) return;
+        if (this.#soundOn) { this.#setSound(false); this.#cmd.stop(); } else { this.#setSound(true); this.#cmd.pulse(c.key); }
+      });
     } else {
       btn.addEventListener('click', () => { if (!btn.disabled) this.#cmd.pulse(c.key); });
     }
   }
 
+  #soundOn = false;
+  #setSound(on) {
+    this.#soundOn = on;
+    const b = this.#buttons.get('SONIDO');
+    if (b) { b.dataset.on = String(on); b.setAttribute('aria-pressed', String(on)); }
+  }
+
   #phase(key, state) {
+    if (key === 'SONIDO' && state === 'error') this.#setSound(false);
     this.#lever.setPhase(key, state);
     const target = key === 'DETENER' ? this.#stopBtn : this.#buttons.get(key);
     if (!target) return;
     target.dataset.state = state;
-    if (key !== 'DETENER') target.setAttribute('aria-pressed', String(state === 'pressed'));
+    if (key !== 'DETENER' && key !== 'SONIDO') target.setAttribute('aria-pressed', String(state === 'pressed'));
     target.setAttribute('aria-busy', String(state === 'sending'));
   }
 
@@ -100,6 +113,7 @@ export class ControlPanel {
     const ready = this.#cmd.ready;
     for (const [key, b] of this.#buttons) b.disabled = !ready || demo || Boolean(owner && owner !== `btn:${key}`);
     this.#joystick.setEnabled(ready && !demo && (!owner || owner === 'joystick'));
+    if (demo || !ready) this.#setSound(false);
     this.#lever.setEnabled(ready && !demo && (!owner || owner === 'lever'));
     this.#stopBtn.disabled = !ready || !this.#catalog?.stop;
     this.#stopBtn.setAttribute('aria-disabled', String(this.#stopBtn.disabled));
@@ -117,10 +131,11 @@ export class ControlPanel {
   #log({ kind, text, detail, movement }) {
     if (kind === 'error') { toast(`${text}${detail ? ` ${detail}` : ''}`.trim(), { error: true, ms: 4500 }); return; }
     if (!movement) return;
+    if (movement.stop) this.#setSound(false);        // DETENER (desde donde sea) apaga el sonido
     clearTimeout(this.#nowTimer);
     const label = movement.stop ? 'Detenido' : (this.#catalog?.get(movement.key)?.say ?? humanize(movement.key));
     this.#logBox.dataset.kind = movement.stop ? 'idle' : 'moving';
     setText(this.#logMain, label);
-    if (movement.mode === 'pulse') this.#nowTimer = setTimeout(() => { this.#logBox.dataset.kind = 'idle'; setText(this.#logMain, 'Listo'); }, 1800);   // acción puntual: termina sola
+    if (movement.mode === 'pulse' && movement.key !== 'SONIDO') this.#nowTimer = setTimeout(() => { this.#logBox.dataset.kind = 'idle'; setText(this.#logMain, 'Listo'); }, 1800);   // acción puntual: termina sola
   }
 }

@@ -127,3 +127,9 @@ Más detalles: `docs/ARQUITECTURA.md`, `docs/CONTRATO_API.md`, `docs/PRUEBAS.md`
 - **Voz**: el navegador convierte tu voz a texto (Web Speech API, `es-MX`; Chrome, Edge o Safari, con HTTPS) y lo envía a `POST /vehiculos/{id}/ia/instrucciones`. La IA del servidor lo traduce a movimientos y los ejecuta como una DEMO (se cancela con DETENER). Requiere `OPENAI_API_KEY` en el `.env` del servidor.
 - **Señas**: cámara + MediaPipe (en el navegador; el video no se envía). ☝️ avanzar · 👎 retroceder · ✌️ girar izquierda · 👍 girar derecha · ✋/✊ detener. Si la mano desaparece, el carro se detiene. Ajustes en `CONFIG.GESTURES` (`assets/js/config.js`). Necesita internet para cargar el modelo (jsDelivr y Google Storage).
 - Pruebas: `e2e_ai.cjs` (micrófono y cámara simulados).
+
+## v1.6.0 — Pantalla completa y nuevo diseño de controles
+- **Pantalla completa:** botón ⛶ en el encabezado (Android/escritorio) que también fija la orientación horizontal. En el teléfono, además, la app es instalable: menú del navegador → «Instalar app» / «Añadir a pantalla de inicio» (`manifest.webmanifest`, `display: fullscreen`).
+- Barra **MOVIMIENTO** centrada y en vidrio; joystick con el mismo diseño de la palanca; palanca más grande y sin iconos.
+- **Sonido, Voz y Señas** solo con icono, en triángulo. **Sonido** es un interruptor: 1.er toque envía SONIDO y se ilumina; el 2.º envía DETENER y se apaga (DETENER general también lo apaga).
+- **DETENER** octagonal y **DEMO** en tarjeta de vidrio; se quitó el botón ✕ (DETENER cancela la DEMO).

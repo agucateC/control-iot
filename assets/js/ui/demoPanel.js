@@ -7,14 +7,12 @@ export class DemoPanel {
     this.#demo = demoController;
     this.select = root.getElementById('demo-select');
     this.start = root.getElementById('btn-demo-start');
-    this.cancel = root.getElementById('btn-demo-cancel');
     this.status = root.getElementById('demo-status');
     this.progress = root.getElementById('demo-progress');
     this.bar = root.getElementById('demo-bar');
 
     this.select.addEventListener('change', () => this.#demo.select(this.select.value));
     this.start.addEventListener('click', () => { if (!this.start.disabled) this.#demo.start(); });
-    this.cancel.addEventListener('click', () => { if (!this.cancel.disabled) this.#demo.cancel(); });
     this.#demo.on('change', (s) => this.render(s));
   }
 
@@ -33,7 +31,6 @@ export class DemoPanel {
     const busy = s.running || s.starting;
     this.select.disabled = busy || !s.demos.length;
     this.start.disabled = busy || !s.selected;
-    this.cancel.disabled = !s.running || s.cancelling;
     this.start.dataset.state = s.starting ? 'sending' : 'idle';
     setText(this.status, s.message);
     this.status.dataset.kind = s.kind;
