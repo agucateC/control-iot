@@ -102,7 +102,11 @@ class App {
     setText(document.getElementById('credits-app'), CONFIG.APP_NAME);
     const name = document.getElementById('credits-name');
     setText(name, CONFIG.STUDENT_NAME);
-    if (CONFIG.STUDENT_URL) name.href = CONFIG.STUDENT_URL; else name.removeAttribute('href');
+    if (CONFIG.GITHUB_URL) name.href = CONFIG.GITHUB_URL; else name.removeAttribute('href');
+    for (const [id, url] of [['credits-github', CONFIG.GITHUB_URL], ['credits-linkedin', CONFIG.LINKEDIN_URL]]) {
+      const a = document.getElementById(id);
+      if (url) a.href = url; else a.hidden = true;
+    }
   }
 
   async loadVehicle() {

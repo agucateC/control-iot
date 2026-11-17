@@ -28,7 +28,8 @@ export const CONFIG = Object.freeze({
   /** Datos del pie de página: © AÑO APP_NAME. Todos los derechos reservados. Desarrollado por STUDENT_NAME · AÑO */
   APP_NAME: 'Control IoT',
   STUDENT_NAME: 'Carlos Omar Cruz Ramos',
-  STUDENT_URL: 'https://github.com/agucateC',      // enlace del nombre (GitHub); '' para mostrarlo sin enlace
+  GITHUB_URL: 'https://github.com/agucateC',        // '' para ocultar el enlace
+  LINKEDIN_URL: 'https://www.linkedin.com/in/carlos-omar-cruz-ramos',   // '' para ocultar el enlace
   YEAR: 2026,
 
   API_BASE_URL,

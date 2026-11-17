@@ -427,3 +427,9 @@ html[data-view="monitoreo"] .action-log { display: none; }
   box-shadow: inset 0 1.5px 0 rgba(255,255,255,.45), inset 0 -1.5px 0 rgba(0,0,0,.4), 0 8px 22px rgba(0,0,0,.65); }
 .toast-msg.error { background: linear-gradient(135deg, rgba(255,70,70,.5), rgba(90,10,8,.75)); }
 @media (orientation: landscape) and (max-height: 600px) { .toast-zone { top: auto; bottom: calc(4.6rem + var(--safe-b)); } }
+
+/* Créditos: iconos de GitHub y LinkedIn a la izquierda de «Desarrollado por» */
+.app-footer .credit-icons { display: inline-flex; align-items: center; gap: .55em; margin-right: .5em; vertical-align: middle; }
+.app-footer a.credit-icon { display: inline-flex; padding: .15em; color: var(--r3); text-decoration: none; }
+.app-footer a.credit-icon:hover { color: var(--r4); }
+.app-footer .credit-icon svg { width: 1.55em; height: 1.55em; }

@@ -138,3 +138,6 @@ Más detalles: `docs/ARQUITECTURA.md`, `docs/CONTRATO_API.md`, `docs/PRUEBAS.md`
 - La DEMO es una píldora (selector + botón ▶). El ▶ se ilumina con la misma animación que Voz/Sonido/Señas mientras corre y se apaga al terminar.
 - Los pasos de la DEMO aparecen en el letrero **MOVIMIENTO**; solo salen dos letreros de 4 s: «Demo iniciada» y «Demo finalizada» (o «cancelada» / error).
 - Iconos de Sonido/Voz/Señas centrados. Los letreros (toasts) ahora son píldoras de vidrio.
+
+## v1.6.2 — Créditos
+- A la izquierda de «Desarrollado por» hay dos iconos que abren **GitHub** y **LinkedIn** del autor (`CONFIG.GITHUB_URL` y `CONFIG.LINKEDIN_URL` en `assets/js/config.js`; si dejas uno vacío, se oculta).
