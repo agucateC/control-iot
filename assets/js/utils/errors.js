@@ -10,6 +10,9 @@ export class ApiError extends Error {
   }
 }
 
+let authMode = false;
+export function setAuthMode(on) { authMode = Boolean(on); }
+
 /** Mensaje comprensible para la persona usuaria (nunca expone trazas ni datos internos). */
 export function friendlyMessage(err) {
   if (!(err instanceof ApiError)) return 'Ocurrió un error inesperado.';
@@ -24,8 +27,9 @@ export function friendlyMessage(err) {
   const d = err.detail ? ` ${err.detail}` : '';
   switch (err.status) {
     case 400: return `Solicitud inválida.${d}`;
-    case 401: return 'Falta la clave de API. Escríbela en la sección DEMO.';
-    case 403: return 'La clave de API es incorrecta.';
+    case 401: return authMode ? 'Tu sesión terminó o expiró. Vuelve a iniciar sesión.' : 'Falta la clave de API. Escríbela en la sección DEMO.';
+    case 403: return authMode ? (err.detail || 'No tienes permiso para esta operación.') : 'La clave de API es incorrecta.';
+    case 429: return 'Demasiados intentos; espera un minuto.';
     case 404: return `No existe el recurso solicitado.${d}`;
     case 409: return `Conflicto: ${err.detail || 'la operación no es válida en este momento.'}`;
     case 422: return 'Los datos enviados no son válidos.';

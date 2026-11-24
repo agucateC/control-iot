@@ -33,6 +33,9 @@ export const CONFIG = Object.freeze({
   YEAR: 2026,
 
   API_BASE_URL,
+  /** ADMINISTRACIÓN: false = comportamiento 4.1/4.2 (X-API-Key). true = login con roles (requiere AUTH_MODE=enforced en la API). */
+  AUTH_ENABLED: false || (['localhost', '127.0.0.1'].includes(globalThis.location?.hostname) && params.get('auth') === '1'),   // ?auth=1 solo para pruebas locales
+  GUEST_MINUTES_HINT: 5,
   /** Clave X-API-Key para las operaciones protegidas (ejecutar/cancelar DEMO). */
   API_KEY: '7TME%??xjdu%Nohiul%*P%7Ni!37oR@',
   /** WSS derivado de la misma base: https→wss (nunca ws:// desde una página HTTPS). */
@@ -52,6 +55,19 @@ export const CONFIG = Object.freeze({
     saludRds: '/salud/rds',
     ws: (id) => `/ws/vehiculos/${id}`,
     instrucciones: (id) => `/vehiculos/${id}/ia/instrucciones`,
+    // --- ADMINISTRACIÓN (rutas nuevas de la API v1.3.0) ---
+    login: '/auth/login', refresh: '/auth/refresh', logout: '/auth/logout', me: '/auth/me', password: '/auth/password',
+    misVehiculos: '/mis-vehiculos', soporte: (u) => `/mis-vehiculos/${u}/soporte`,
+    catalogo: '/invitado/catalogo', sesionesInvitado: '/invitado/sesiones', sesionInvitado: '/invitado/sesion',
+    vehiculos: '/vehiculos', comandos: (id) => `/vehiculos/${id}/comandos`,
+    demos: (id) => `/vehiculos/${id}/demos`, demo: (id, d) => `/vehiculos/${id}/demos/${d}`,
+    demoMovs: (id, d) => `/vehiculos/${id}/demos/${d}/movimientos`, demoMov: (id, d, m) => `/vehiculos/${id}/demos/${d}/movimientos/${m}`,
+    admin: Object.freeze({
+      metricas: '/admin/metricas', modelos: '/admin/modelos', modelo: (i) => `/admin/modelos/${i}`,
+      unidades: '/admin/unidades', unidad: (i) => `/admin/unidades/${i}`,
+      clientes: '/admin/clientes', cliente: (i) => `/admin/clientes/${i}`, resetPassword: (i) => `/admin/clientes/${i}/restablecer-password`,
+      asignaciones: '/admin/asignaciones', asignacion: (u) => `/admin/asignaciones/${u}`, auditoria: '/admin/auditoria',
+    }),
   }),
 
   /** MONITOREO. El backend devuelve ya los 10 más recientes (GET /historial) y MySQL entrega fechas sin zona. */
@@ -77,6 +93,7 @@ export const CONFIG = Object.freeze({
     NAMES: Object.freeze({ Pointing_Up: '☝️ Avanzar', Thumb_Down: '👎 Retroceder', Victory: '✌️ Girar a la izquierda', Thumb_Up: '👍 Girar a la derecha', Open_Palm: '✋ Detener', Closed_Fist: '✊ Detener' }),
   }),
 
+  PAGE_SIZE: 10,
   REQUEST_TIMEOUT_MS: 8000,
   MOVE_TIMEOUT_MS: 5000,
   HEALTH_INTERVAL_MS: 15000,

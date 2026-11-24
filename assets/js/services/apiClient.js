@@ -6,9 +6,11 @@ import { ApiError } from '../utils/errors.js';
  * La clave de API llega por `getApiKey()` (viene de CONFIG.API_KEY).
  */
 export class ApiClient {
-  #baseUrl; #timeoutMs; #getApiKey;
+  #baseUrl; #timeoutMs; #getApiKey; #session;
 
-  constructor({ baseUrl, timeoutMs = 8000, getApiKey = () => '' }) {
+  /** `session` (AuthSession) opcional: con él se envía Authorization: Bearer y se renueva el token ante un 401. */
+  constructor({ baseUrl, timeoutMs = 8000, getApiKey = () => '', session = null }) {
+    this.#session = session;
     this.#baseUrl = baseUrl.replace(/\/+$/, '');
     this.#timeoutMs = timeoutMs;
     this.#getApiKey = getApiKey;
@@ -23,10 +25,26 @@ export class ApiClient {
    * @param {{body?:object, auth?:boolean, timeoutMs?:number, signal?:AbortSignal}} opts
    * `auth:true` agrega X-API-Key (operaciones protegidas).
    */
-  async request(method, path, { body, auth = false, timeoutMs = this.#timeoutMs, signal } = {}) {
+  async request(method, path, opts = {}) {
+    try {
+      return await this.#once(method, path, opts);
+    } catch (e) {
+      const s = this.#session;
+      if (e instanceof ApiError && e.status === 401 && s?.token && !s.isGuest && !path.startsWith('/auth/')) {
+        if (await s.refresh()) return this.#once(method, path, opts);   // token vencido: renueva (cookie HttpOnly) y reintenta UNA vez
+        s.expire();
+      }
+      throw e;
+    }
+  }
+
+  async #once(method, path, { body, auth = false, timeoutMs = this.#timeoutMs, signal } = {}) {
     const headers = { Accept: 'application/json' };
+    const bearer = this.#session?.token;
     if (body !== undefined) headers['Content-Type'] = 'application/json';
-    if (auth) {
+    if (path.startsWith('/auth/')) headers['X-Requested-With'] = 'fetch';   // defensa CSRF del refresh/logout
+    if (bearer) headers.Authorization = `Bearer ${bearer}`;
+    else if (auth) {
       const key = this.#getApiKey();
       if (!key) throw new ApiError('http', 'Falta la clave de API', { status: 401 });
       headers['X-API-Key'] = key;
@@ -41,7 +59,7 @@ export class ApiClient {
     let res;
     try {
       res = await fetch(this.#baseUrl + path, {
-        method, headers, signal: ctrl.signal, cache: 'no-store', credentials: 'omit',
+        method, headers, signal: ctrl.signal, cache: 'no-store', credentials: path.startsWith('/auth/') ? 'include' : 'omit',
         body: body !== undefined ? JSON.stringify(body) : undefined,
       });
     } catch (e) {

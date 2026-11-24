@@ -12,10 +12,12 @@ const KNOWN = new Set(['estado_inicial', 'movimiento_individual', 'demo_inicio',
  */
 export class SocketClient extends Emitter {
   #url; #id; #ws = null; #state = 'closed'; #attempt = 0; #retryTimer = 0; #pingTimer = 0; #pongTimer = 0;
-  #stopped = true;
+  #stopped = true; #session; #authed = true;
 
-  constructor(vehicleId) {
+  /** `session` (AuthSession) opcional: con él el primer mensaje autentica el canal ({type:'auth', token}). */
+  constructor(vehicleId, session = null) {
     super();
+    this.#session = session;
     this.#id = vehicleId;
     this.#url = CONFIG.WS_BASE_URL + CONFIG.ENDPOINTS.ws(vehicleId);
   }
@@ -64,7 +66,14 @@ export class SocketClient extends Emitter {
     let ws;
     try { ws = new WebSocket(this.#url); } catch { this.#scheduleRetry(); return; }
     this.#ws = ws;
-    ws.onopen = () => { this.#attempt = 0; this.#set('open'); this.#startPing(); };
+    ws.onopen = () => {
+      if (this.#session?.token) {              // enforced: no se declara «abierto» hasta que la API autoriza este canal
+        this.#authed = false;
+        ws.send(JSON.stringify({ type: 'auth', token: this.#session.token }));
+        return;
+      }
+      this.#attempt = 0; this.#set('open'); this.#startPing();
+    };
     ws.onmessage = (ev) => this.#onMessage(ev);
     ws.onerror = () => { /* el detalle llega en onclose */ };
     ws.onclose = (ev) => {
@@ -72,6 +81,11 @@ export class SocketClient extends Emitter {
       if (this.#ws === ws) this.#ws = null;
       if (this.#stopped) return;
       if (ev.code === 4404) { this.#set('closed', { reason: 'not-found' }); return; }
+      if (ev.code === 4403 || ev.code === 4408) { this.#set('closed', { reason: ev.code === 4408 ? 'session-ended' : 'forbidden' }); return; }   // sin permiso: no reintentar
+      if (ev.code === 4401 && this.#session) {   // token vencido/sesión cerrada: renovar y reconectar; si no se puede, la sesión terminó
+        this.#session.refresh().then((ok) => { if (this.#stopped) return; if (ok) this.#connect(); else this.#set('closed', { reason: 'unauthorized' }); });
+        return;
+      }
       this.#scheduleRetry(ev.code);
     };
   }
@@ -102,6 +116,7 @@ export class SocketClient extends Emitter {
     let msg;
     try { msg = JSON.parse(ev.data); } catch { return; }       // JSON remoto no confiable
     if (!isObject(msg) || typeof msg.evento !== 'string' || !KNOWN.has(msg.evento)) return;
+    if (!this.#authed) { this.#authed = true; this.#attempt = 0; this.#set('open'); this.#startPing(); }
     if (msg.id_vehiculo !== this.#id) return;                    // solo el vehículo propio
     if (msg.evento === 'pong') { clearTimeout(this.#pongTimer); return; }
     this.emit('event', {
