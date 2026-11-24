@@ -141,3 +141,13 @@ Más detalles: `docs/ARQUITECTURA.md`, `docs/CONTRATO_API.md`, `docs/PRUEBAS.md`
 
 ## v1.6.2 — Créditos
 - A la izquierda de «Desarrollado por» hay dos iconos que abren **GitHub** y **LinkedIn** del autor (`CONFIG.GITHUB_URL` y `CONFIG.LINKEDIN_URL` en `assets/js/config.js`; si dejas uno vacío, se oculta).
+
+
+## v1.7.0 · ADMINISTRACIÓN (roles, Mis vehículos, invitados)
+- **Navegación**: CONTROL | MONITOREO | MIS VEHÍCULOS (usuario) | ADMINISTRACIÓN (admin). Las vistas salen del rol que devuelve la API; ocultar un botón nunca sustituye la autorización del servidor.
+- **Activación**: en `assets/js/config.js` cambia `AUTH_ENABLED` a `true` **solo cuando** la API corra con `AUTH_MODE=enforced` (ver `api/docs/ADMINISTRACION.md`). Con `false` la app funciona exactamente como 4.1/4.2.
+- **Acceso**: inicio de sesión (ADMINISTRADOR/USUARIO) o prueba temporal de una unidad de exhibición (INVITADO). El access token vive solo en memoria; el refresh es una cookie HttpOnly. Ya no se usa la X-API-Key compartida.
+- **Admin**: resumen con métricas reales, inventario (alta, baja, exhibición), modelos y límites físicos, clientes (alta, activar/desactivar, contraseña temporal), asignaciones y bitácora; todo paginado, con estados de carga/vacío/error y teclado.
+- **Usuario**: sus unidades, autorizar/revocar soporte temporal, editor de demos propias (agregar, quitar, editar y reordenar pasos; el servidor valida límites).
+- **Invitado**: catálogo público, cuenta regresiva, solo DETENER y demos de fábrica; sin joystick.
+- Pruebas: `node e2e_admin.cjs` (con `run_fake_admin.py`). Dato: `?auth=1` activa el modo con roles solo en localhost.
