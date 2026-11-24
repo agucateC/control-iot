@@ -34,7 +34,7 @@ export const CONFIG = Object.freeze({
 
   API_BASE_URL,
   /** ADMINISTRACIÓN: false = comportamiento 4.1/4.2 (X-API-Key). true = login con roles (requiere AUTH_MODE=enforced en la API). */
-  AUTH_ENABLED: false || (['localhost', '127.0.0.1'].includes(globalThis.location?.hostname) && params.get('auth') === '1'),   // ?auth=1 solo para pruebas locales
+  AUTH_ENABLED: true,   // ?auth=1 solo para pruebas locales
   GUEST_MINUTES_HINT: 5,
   /** Clave X-API-Key para las operaciones protegidas (ejecutar/cancelar DEMO). */
   API_KEY: '7TME%??xjdu%Nohiul%*P%7Ni!37oR@',
